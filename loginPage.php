@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,120 +6,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Classroom UI</title>
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </head>
 <body>
     <header>
         <div class="header-left">
             <h1>DivRoom</h1>
         </div>
-        <div class="header-right">
-            <button id="createProjectBtn">Create Project</button>
-        </div>
     </header>
-    <div class="container">
-        <aside class="sidebar">
-            <ul>
-                <li id="projectSide" class="active">Projects</li>
-                <li id="permitSide">Permit</li>
-                <li id="customSide">Custom Project Progress</li>
-                <li id="creditSide">Credit score & awards</li>
-            </ul>
-        </aside>
-        <main class="main-content">
-            <!-- Project Cards will be added here -->
-        </main>
-    </div>
-
-    <!-- Create Project Modal -->
-    <div id="createProjectModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2>Create New Project</h2>
-            <form id="createProjectForm">
-                <label for="projectName">Project Name:</label>
-                <input type="text" id="projectName" name="projectName" >
-                
-                <label for="projectDeadline">Project Deadline:</label>
-                <input type="date" id="projectDeadline" name="projectDeadline" >
-
-                <!-- Add Team Members Section -->
-            <label for="task">Add Task:</label>
-            <div id="task">
-                <button type="button" id="addTaskFormButton">+ Add Task</button>
-            </div>
-
-            <div id="newTaskForm" class="hidden">
-                <label for="taskName">Name:</label>
-                <input type="text" id="taskNameId"  >
-                
-                <label for="taskDescription">Description:</label>
-                <input type="text" id="taskDescription">
-
-                <label for="taskProgress">Progress:</label>
-                <input type="number" id="taskProgress" min="0" max="100">
-                
-
-                <button type="button" id="addTaskButton">Add</button>
-            </div>
-
-            <table id="tasklist">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Progress</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-
-                
-                <label for="projectProgress">Project Progress:</label>
-                <input type="number" id="projectProgress" name="projectProgress" min="0" max="100" required>
-                
-                <label for="teamMembers">Add Team Members:</label>
-                <div id="teamMembers">
-                    <button type="button" id="addMemberFormBtn">+ Add Member</button>
-                </div>
-                
-                <div id="newMemberForm" class="hidden">
-                    <label for="memberName">Name:</label>
-                    <input type="text" id="memberNameId"  >
-                    
-                    <label for="memberEmail">Email:</label>
-                    <input type="email" id="memberEmail"  >
-                    
-                    
-                    <button type="button" id="addMemberBtn">Add</button>
-                </div>
-                
-                <table id="memberList">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-                
-                <label for="fileTypes">File Submission Type:</label>
-<select id="fileTypes" name="fileTypes" required multiple>
-    <option value="pdf">PDF</option>
-    <option value="doc">DOC</option>
-    <option value="ppt">PPT</option>
-    <option value="xls">XLS</option>
-    <option value="jpg">JPG</option>
-    <option value="png">PNG</option>
-</select>
-
-
-                
-                <button type="submit" id="saveProjectButton">Create Project</button>
-            </form>
-        </div>
+    <div class="container vstack d-flex justify-content-center align-items-center">
+      <form style="background-color: white;" class="rounded-3 w-50">
+          <div class="d-flex justify-content-center login-header w-100 rounded-top-3 py-2" style="background-color: #4285F4;">
+            <h1 class="text-white">Login</h1>
+          </div>
+          <div class="mb-3 mx-3">
+            <label for="exampleInputEmail1" class="form-label">Manager Name</label>
+            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+          </div>
+          <div class="mb-3 mx-3">
+            <label for="exampleInputPassword1" class="form-label">Password</label>
+            <input type="password" class="form-control" id="exampleInputPassword1">
+          </div>
+          <div class="mb-3 form-check mx-3">
+            <input type="checkbox" class="form-check-input" id="exampleCheck1">
+            <label class="form-check-label" for="exampleCheck1">Show Password</label>
+          </div>
+          <div class="mx-3 d-flex justify-content-center hstack">
+            <p class="mt-3">Doesn't have an account?&nbsp;</p>
+            <a href="">Sign up</a>
+          </div>
+          <div class="mb-3 submit-button d-flex justify-content-center">
+            <button type="submit" class="mt-0 w-50 btn btn-primary">Submit</button>
+          </div>
+      </form>
     </div>
 
     
@@ -419,6 +340,15 @@ form select {
         $( "#projectSide" ).toggleClass("active", false);
         $( "#creditSide" ).toggleClass("active", false);
         $( "#permitSide" ).toggleClass("active", false);
+    } );
+
+    $(".form-check-input").on( "click", function() {
+      var isChecked = $(".form-check-input").is(":checked");
+      if (isChecked) {
+        $("#exampleInputPassword1").get(0).type = 'text'
+      } else {
+        $("#exampleInputPassword1").get(0).type = 'password'
+      }
     } );
 
     document.addEventListener('DOMContentLoaded', () => {
