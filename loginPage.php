@@ -1,3 +1,7 @@
+<!-- <?php
+  // include("db_connect.php");
+  // include("sign_up.php");
+?> -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -16,17 +20,28 @@
         </div>
     </header>
     <div class="container vstack d-flex justify-content-center align-items-center">
-      <form style="background-color: white;" class="rounded-3 w-50">
+      <form action="login.php" method="POST" style="background-color: white;" class="rounded-3 w-50">
           <div class="d-flex justify-content-center login-header w-100 rounded-top-3 py-2" style="background-color: #4285F4;">
             <h1 class="text-white">Login</h1>
           </div>
+          <div class="alert d-none rounded-0 alert-warning" role="alert">
+             Silahkan pilih dahulu role anda
+          </div>
           <div class="mb-3 mx-3">
-            <label for="exampleInputEmail1" class="form-label">Manager Name</label>
-            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+            <label for="selectRole" class="form-label">Role</label>
+            <select id="selectRole" name="role" class="form-select">
+              <option value="none">Select your role</option>
+              <option value="manager">Manager</option>
+              <option value="employee">Employee</option>
+            </select>
+          </div>
+          <div class="mb-3 mx-3">
+            <label for="exampleInputEmail1" class="form-label" id="name">Name</label>
+            <input type="text" name="name" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
           </div>
           <div class="mb-3 mx-3">
             <label for="exampleInputPassword1" class="form-label">Password</label>
-            <input type="password" class="form-control" id="exampleInputPassword1">
+            <input type="password" class="form-control" id="exampleInputPassword1" name="pass">
           </div>
           <div class="mb-3 form-check mx-3">
             <input type="checkbox" class="form-check-input" id="exampleCheck1">
@@ -37,7 +52,7 @@
             <a href="">Sign up</a>
           </div>
           <div class="mb-3 submit-button d-flex justify-content-center">
-            <button type="submit" class="mt-0 w-50 btn btn-primary">Submit</button>
+            <button value="Login" name="Login" type="submit" class="mt-0 w-50 btn btn-primary">Submit</button>
           </div>
       </form>
     </div>
@@ -314,40 +329,50 @@ form select {
 </style>
 
 <script>
-    $( "#permitSide" ).on( "click", function() {
-        $( "#permitSide" ).toggleClass("active", true);
-        $( "#projectSide" ).toggleClass("active", false);
-        $( "#creditSide" ).toggleClass("active", false);
-        $( "#customSide" ).toggleClass("active", false);
-    } );
-
-    $( "#projectSide" ).on( "click", function() {
-        $( "#projectSide" ).toggleClass("active", true);
-        $( "#permitSide" ).toggleClass("active", false);
-        $( "#creditSide" ).toggleClass("active", false);
-        $( "#customSide" ).toggleClass("active", false);
-    } );
-
-    $( "#creditSide" ).on( "click", function() {
-        $( "#creditSide" ).toggleClass("active", true);
-        $( "#projectSide" ).toggleClass("active", false);
-        $( "#permitSide" ).toggleClass("active", false);
-        $( "#customSide" ).toggleClass("active", false);
-    } );
-
-    $( "#customSide" ).on( "click", function() {
-        $( "#customSide" ).toggleClass("active", true);
-        $( "#projectSide" ).toggleClass("active", false);
-        $( "#creditSide" ).toggleClass("active", false);
-        $( "#permitSide" ).toggleClass("active", false);
-    } );
-
     $(".form-check-input").on( "click", function() {
       var isChecked = $(".form-check-input").is(":checked");
       if (isChecked) {
         $("#exampleInputPassword1").get(0).type = 'text'
       } else {
         $("#exampleInputPassword1").get(0).type = 'password'
+      }
+    } );
+
+    $(document).ready(function() {
+      $('#selectRole').change(function() {
+          var selectedValue = $(this).val();
+          if (selectedValue == "manager") {
+            if (!($('.alert').hasClass('d-none'))) {
+              $('.alert').addClass('d-none');
+            }
+            $('#exampleInputEmail1').prop('disabled', false);
+            $('#exampleInputPassword1').prop('disabled', false);
+            $('#name').text("Manager Name")
+          }
+          else if (selectedValue == "employee") {
+            if (!($('.alert').hasClass('d-none'))) {
+              $('.alert').addClass('d-none'); 
+            }
+            $('#exampleInputEmail1').prop('disabled', false);
+            $('#exampleInputPassword1').prop('disabled', false);
+            $('#name').text( "Employee Name")
+          }
+      });
+    });
+
+    $("#exampleInputEmail1").on("click", function() {
+      var noneValue = ($('#selectRole').val() == "none");
+      if (noneValue) {
+        $('.alert').removeClass('d-none');
+        $('#exampleInputEmail1').prop('disabled', true);
+      }
+    } );
+
+    $("#exampleInputPassword1").on("click", function() {
+      var noneValue = ($('#selectRole').val() == "none");
+      if (noneValue) {
+        $('.alert').removeClass('d-none');
+        $('#exampleInputPassword1').prop('disabled', true);
       }
     } );
 
