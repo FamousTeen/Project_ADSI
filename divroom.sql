@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Generation Time: Jun 02, 2024 at 05:22 AM
+-- Host: 127.0.0.1
+-- Generation Time: Jun 02, 2024 at 12:45 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -24,10 +24,10 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Announcement`
+-- Table structure for table `announcement`
 --
 
-CREATE TABLE `Announcement` (
+CREATE TABLE `announcement` (
   `announceId` int(11) NOT NULL,
   `announceTitle` varchar(255) NOT NULL,
   `description` varchar(255) NOT NULL,
@@ -39,25 +39,33 @@ CREATE TABLE `Announcement` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Employee`
+-- Table structure for table `employee`
 --
 
-CREATE TABLE `Employee` (
+CREATE TABLE `employee` (
   `idEmp` int(11) NOT NULL,
   `empName` varchar(255) NOT NULL,
   `departmentName` varchar(255) NOT NULL,
-  `no_telp` int(255) NOT NULL,
+  `no_telp` varchar(255) NOT NULL,
   `credit_score` int(255) NOT NULL,
-  `status` varchar(255) NOT NULL
+  `status` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `employee`
+--
+
+INSERT INTO `employee` (`idEmp`, `empName`, `departmentName`, `no_telp`, `credit_score`, `status`, `password`) VALUES
+(1, 'Richard', 'IT', '081230425719', 50, 'idle', '12345');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Event`
+-- Table structure for table `event`
 --
 
-CREATE TABLE `Event` (
+CREATE TABLE `event` (
   `eventId` int(11) NOT NULL,
   `eventTitle` varchar(255) NOT NULL,
   `description` varchar(255) NOT NULL,
@@ -69,25 +77,33 @@ CREATE TABLE `Event` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Manager`
+-- Table structure for table `manager`
 --
 
-CREATE TABLE `Manager` (
+CREATE TABLE `manager` (
   `idManager` int(11) NOT NULL,
   `managerName` varchar(255) NOT NULL,
   `departmentName` varchar(255) NOT NULL,
-  `no_telp` int(255) NOT NULL,
+  `no_telp` varchar(255) NOT NULL,
   `empList` int(11) NOT NULL,
-  `status` varchar(255) NOT NULL
+  `status` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `manager`
+--
+
+INSERT INTO `manager` (`idManager`, `managerName`, `departmentName`, `no_telp`, `empList`, `status`, `password`) VALUES
+(1, 'Warren', 'IT', '039829473489', 1, 'onDuty', '12345');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Permit`
+-- Table structure for table `permit`
 --
 
-CREATE TABLE `Permit` (
+CREATE TABLE `permit` (
   `permitId` int(11) NOT NULL,
   `permitTitle` varchar(255) NOT NULL,
   `description` varchar(255) NOT NULL,
@@ -99,10 +115,10 @@ CREATE TABLE `Permit` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `Project`
+-- Table structure for table `project`
 --
 
-CREATE TABLE `Project` (
+CREATE TABLE `project` (
   `idProject` int(11) NOT NULL,
   `startDate` datetime NOT NULL,
   `Deadline` datetime NOT NULL,
@@ -118,44 +134,44 @@ CREATE TABLE `Project` (
 --
 
 --
--- Indexes for table `Announcement`
+-- Indexes for table `announcement`
 --
-ALTER TABLE `Announcement`
+ALTER TABLE `announcement`
   ADD PRIMARY KEY (`announceId`),
   ADD KEY `manager_fk_anc` (`man`),
   ADD KEY `event_fk_anc` (`eventList`);
 
 --
--- Indexes for table `Employee`
+-- Indexes for table `employee`
 --
-ALTER TABLE `Employee`
+ALTER TABLE `employee`
   ADD PRIMARY KEY (`idEmp`);
 
 --
--- Indexes for table `Event`
+-- Indexes for table `event`
 --
-ALTER TABLE `Event`
+ALTER TABLE `event`
   ADD PRIMARY KEY (`eventId`);
 
 --
--- Indexes for table `Manager`
+-- Indexes for table `manager`
 --
-ALTER TABLE `Manager`
+ALTER TABLE `manager`
   ADD PRIMARY KEY (`idManager`),
   ADD KEY `employee_fk_manager` (`empList`);
 
 --
--- Indexes for table `Permit`
+-- Indexes for table `permit`
 --
-ALTER TABLE `Permit`
+ALTER TABLE `permit`
   ADD PRIMARY KEY (`permitId`),
   ADD KEY `employee_fk_permit` (`empList`),
   ADD KEY `manager_fk_permit` (`man`);
 
 --
--- Indexes for table `Project`
+-- Indexes for table `project`
 --
-ALTER TABLE `Project`
+ALTER TABLE `project`
   ADD PRIMARY KEY (`idProject`),
   ADD KEY `employee_fk_project` (`empList`),
   ADD KEY `manager_fk_project` (`man`);
@@ -165,39 +181,39 @@ ALTER TABLE `Project`
 --
 
 --
--- AUTO_INCREMENT for table `Announcement`
+-- AUTO_INCREMENT for table `announcement`
 --
-ALTER TABLE `Announcement`
+ALTER TABLE `announcement`
   MODIFY `announceId` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `Employee`
+-- AUTO_INCREMENT for table `employee`
 --
-ALTER TABLE `Employee`
-  MODIFY `idEmp` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `employee`
+  MODIFY `idEmp` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- AUTO_INCREMENT for table `Event`
+-- AUTO_INCREMENT for table `event`
 --
-ALTER TABLE `Event`
+ALTER TABLE `event`
   MODIFY `eventId` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `Manager`
+-- AUTO_INCREMENT for table `manager`
 --
-ALTER TABLE `Manager`
-  MODIFY `idManager` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `manager`
+  MODIFY `idManager` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT for table `Permit`
+-- AUTO_INCREMENT for table `permit`
 --
-ALTER TABLE `Permit`
+ALTER TABLE `permit`
   MODIFY `permitId` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `Project`
+-- AUTO_INCREMENT for table `project`
 --
-ALTER TABLE `Project`
+ALTER TABLE `project`
   MODIFY `idProject` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -205,31 +221,31 @@ ALTER TABLE `Project`
 --
 
 --
--- Constraints for table `Announcement`
+-- Constraints for table `announcement`
 --
-ALTER TABLE `Announcement`
-  ADD CONSTRAINT `event_fk_anc` FOREIGN KEY (`eventList`) REFERENCES `Event` (`eventId`),
-  ADD CONSTRAINT `manager_fk_anc` FOREIGN KEY (`man`) REFERENCES `Manager` (`idManager`);
+ALTER TABLE `announcement`
+  ADD CONSTRAINT `event_fk_anc` FOREIGN KEY (`eventList`) REFERENCES `event` (`eventId`),
+  ADD CONSTRAINT `manager_fk_anc` FOREIGN KEY (`man`) REFERENCES `manager` (`idManager`);
 
 --
--- Constraints for table `Manager`
+-- Constraints for table `manager`
 --
-ALTER TABLE `Manager`
-  ADD CONSTRAINT `employee_fk_manager` FOREIGN KEY (`empList`) REFERENCES `Employee` (`idEmp`);
+ALTER TABLE `manager`
+  ADD CONSTRAINT `employee_fk_manager` FOREIGN KEY (`empList`) REFERENCES `employee` (`idEmp`);
 
 --
--- Constraints for table `Permit`
+-- Constraints for table `permit`
 --
-ALTER TABLE `Permit`
-  ADD CONSTRAINT `employee_fk_permit` FOREIGN KEY (`empList`) REFERENCES `Employee` (`idEmp`),
-  ADD CONSTRAINT `manager_fk_permit` FOREIGN KEY (`man`) REFERENCES `Manager` (`idManager`);
+ALTER TABLE `permit`
+  ADD CONSTRAINT `employee_fk_permit` FOREIGN KEY (`empList`) REFERENCES `employee` (`idEmp`),
+  ADD CONSTRAINT `manager_fk_permit` FOREIGN KEY (`man`) REFERENCES `manager` (`idManager`);
 
 --
--- Constraints for table `Project`
+-- Constraints for table `project`
 --
-ALTER TABLE `Project`
-  ADD CONSTRAINT `employee_fk_project` FOREIGN KEY (`empList`) REFERENCES `Employee` (`idEmp`),
-  ADD CONSTRAINT `manager_fk_project` FOREIGN KEY (`man`) REFERENCES `Manager` (`idManager`);
+ALTER TABLE `project`
+  ADD CONSTRAINT `employee_fk_project` FOREIGN KEY (`empList`) REFERENCES `employee` (`idEmp`),
+  ADD CONSTRAINT `manager_fk_project` FOREIGN KEY (`man`) REFERENCES `manager` (`idManager`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
