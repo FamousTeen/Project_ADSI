@@ -19,19 +19,6 @@ $result = mysqli_query($mysqli, $sql);
 
 $data = array();
 
-$index = 0;
-$permitIndex = 0;
-
-foreach ($result as $row) {
-    $permitIndex +=1;
-    $data[] = array(
-        'title' => $row['permitTitle'],
-        'desc' => $row['description'],
-        'date' => $row['permitDate'],
-        'status' => $row['status']
-    );
-}
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -69,6 +56,9 @@ foreach ($result as $row) {
         <div class="modal-content">
             <span class="close-btn">&times;</span>
             <h2>Request new permit</h2>
+            <div class="alert" style="display: none; color: red;" role="alert">
+                Tanggal yang anda masukkan sudah terlewat
+            </div>
             <p>Manager name: <?php echo $_SESSION['manager_name']?></p>
             <form action="addPermit.php" id="createProjectForm" method="POST">
                 <label for="permitTitle">Permit Title:</label>
@@ -408,34 +398,48 @@ form select {
             newTaskForm.classList.add('hidden'); // Close the add task form when clicking outside the modal
         }
     }
-
     $('#permitDate').change(function() {
         const permitDate = document.getElementById('permitDate').value;
     
-        const currentDate = new Date();
-        const selectedDate = new Date(permitDate);
+        const currentDate = new Date().setHours(0, 0, 0, 0);
+        const selectedDate = new Date(permitDate).setHours(0, 0, 0, 0);
 
         if (permitTitle && permitDate) {
             if (selectedDate < currentDate) {
-                alert('Please select a deadline after the current date.');
+                $('.alert').css("display", "block");
+                $('#saveProjectButton').prop('disabled', true);
+                $('#saveProjectButton').css('background-color', "grey");
                 return; // Exit the function if the deadline is before the current date
+            } else {
+                $('.alert').css("display", "none");
+                $('#saveProjectButton').prop('disabled', false);
+                $('#saveProjectButton').css('background-color', "#4285F4");
             }
         }
     });
 
-        const permitCard = document.createElement('div');
-        permitCard.classList.add('class-card');
-        permitCard.innerHTML = `
-            <h2>${permitTitle}</h2>
-            <p>Description: ${permitDesc}</p>
-            <p>Deadline: ${permitDate}</p>
-            <button>See Permit Detail</button>
+    
+    const permitCard = document.createElement('div');
+    permitCard.classList.add('class-card');
+
+    <?php 
+    $permitIndex = 0;
+    foreach ($result as $row) {
+        $data[$permitIndex] = array(
+            'title' => $row['permitTitle'],
+            'desc' => $row['description'],
+            'date' => $row['permitDate'],
+            'status' => $row['status']
+        );
+    ?>
+        permitCard.innerHTML += `
+            <h2>Permit title: <?php echo $data[0]['title']?></h2>
+            <p>Description: <?php echo $data[0]['desc']?></p>
+            <p>Permit date: <?php echo $data[0]['date']?></p>
+            <button style="background-color:green;color: white;"><?php echo $data[0]['status']?></button>
         `;
         mainContent.appendChild(permitCard);
-    } else {
-        alert('Please fill in all required fields');
-    }
-
+    <?php  $permitIndex +=1; };  ?>
 });
 
     </script>

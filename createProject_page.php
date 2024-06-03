@@ -14,11 +14,6 @@ include('db_connect.php');
     
 </head>
 <body>
-<<<<<<< Updated upstream
-<header>
-    <div class="header-left">
-        <h1>DivRoom</h1>
-=======
     <header>
         <div class="header-left">
             <h1>DivRoom</h1>
@@ -39,13 +34,9 @@ include('db_connect.php');
         <main class="main-content">
             <!-- Project Cards will be added here -->
         </main>
->>>>>>> Stashed changes
     </div>
     <div class="header-right">
         <?php
-        // Start the session to access session variables
-        session_start();
-
         // Check if the user is logged in and their role is manager
         if (isset($_SESSION['name']) && $_SESSION['role'] == 'manager') {
             echo '<button id="createProjectBtn">Create Project</button>';

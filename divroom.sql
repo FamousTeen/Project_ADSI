@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Jun 03, 2024 at 04:42 AM
+-- Host: localhost
+-- Generation Time: Jun 03, 2024 at 08:58 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -57,7 +57,20 @@ CREATE TABLE `employee` (
 --
 
 INSERT INTO `employee` (`idEmp`, `empName`, `departmentName`, `no_telp`, `credit_score`, `status`, `password`) VALUES
-(1, 'Richard', 'IT', '081230425719', 50, 'idle', '12345');
+(1, 'Richard', 'IT', '081230425719', 50, 'idle', '12345'),
+(4, 'Kevin', 'IT', '082223338833', 0, 'idle', '12345'),
+(5, 'Kgei', 'IT', '123123123123', 0, 'idle', 'as');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `employeeProject`
+--
+
+CREATE TABLE `employeeProject` (
+  `idEmp` int(11) NOT NULL,
+  `idProject` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -94,7 +107,8 @@ CREATE TABLE `manager` (
 --
 
 INSERT INTO `manager` (`idManager`, `managerName`, `departmentName`, `no_telp`, `status`, `password`) VALUES
-(1, 'Warren', 'IT', '039829473489', 'onDuty', '12345');
+(1, 'Warren', 'IT', '039829473489', 'onDuty', '12345'),
+(6, 'James', 'IT', '1231234134', 'onDuty', 'as');
 
 -- --------------------------------------------------------
 
@@ -107,9 +121,8 @@ CREATE TABLE `permit` (
   `permitTitle` varchar(255) NOT NULL,
   `description` varchar(255) NOT NULL,
   `man` int(255) NOT NULL,
-  `emp` int(255) NOT NULL,
-  `status` varchar(255) NOT NULL,
-  `permitDate` date NOT NULL
+  `empList` int(255) NOT NULL,
+  `status` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -120,13 +133,26 @@ CREATE TABLE `permit` (
 
 CREATE TABLE `project` (
   `idProject` int(11) NOT NULL,
-  `startDate` datetime NOT NULL,
-  `Deadline` datetime NOT NULL,
-  `projectDetail` varchar(255) NOT NULL,
+  `startDate` varchar(255) NOT NULL,
+  `Deadline` varchar(255) NOT NULL,
+  `projectName` varchar(255) NOT NULL,
   `progressBar` int(255) NOT NULL,
-  `empList` int(11) NOT NULL,
-  `man` int(255) NOT NULL,
+  `man` int(11) NOT NULL,
   `status` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `task`
+--
+
+CREATE TABLE `task` (
+  `idTask` int(11) NOT NULL,
+  `taskName` varchar(255) NOT NULL,
+  `taskDescription` varchar(255) NOT NULL,
+  `progressTask` int(11) NOT NULL,
+  `idProject` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -148,6 +174,13 @@ ALTER TABLE `employee`
   ADD PRIMARY KEY (`idEmp`);
 
 --
+-- Indexes for table `employeeProject`
+--
+ALTER TABLE `employeeProject`
+  ADD KEY `employeeProject_fk` (`idEmp`),
+  ADD KEY `project_fk` (`idProject`);
+
+--
 -- Indexes for table `event`
 --
 ALTER TABLE `event`
@@ -164,7 +197,7 @@ ALTER TABLE `manager`
 --
 ALTER TABLE `permit`
   ADD PRIMARY KEY (`permitId`),
-  ADD KEY `employee_fk_permit` (`emp`),
+  ADD KEY `employee_fk_permit` (`empList`),
   ADD KEY `manager_fk_permit` (`man`);
 
 --
@@ -172,8 +205,14 @@ ALTER TABLE `permit`
 --
 ALTER TABLE `project`
   ADD PRIMARY KEY (`idProject`),
-  ADD KEY `employee_fk_project` (`empList`),
-  ADD KEY `manager_fk_project` (`man`);
+  ADD KEY `man_fk_project` (`man`);
+
+--
+-- Indexes for table `task`
+--
+ALTER TABLE `task`
+  ADD PRIMARY KEY (`idTask`),
+  ADD KEY `task_idproject_fk` (`idProject`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -189,7 +228,7 @@ ALTER TABLE `announcement`
 -- AUTO_INCREMENT for table `employee`
 --
 ALTER TABLE `employee`
-  MODIFY `idEmp` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `idEmp` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `event`
@@ -201,7 +240,7 @@ ALTER TABLE `event`
 -- AUTO_INCREMENT for table `manager`
 --
 ALTER TABLE `manager`
-  MODIFY `idManager` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `idManager` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `permit`
@@ -216,6 +255,12 @@ ALTER TABLE `project`
   MODIFY `idProject` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `task`
+--
+ALTER TABLE `task`
+  MODIFY `idTask` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- Constraints for dumped tables
 --
 
@@ -227,18 +272,30 @@ ALTER TABLE `announcement`
   ADD CONSTRAINT `manager_fk_anc` FOREIGN KEY (`man`) REFERENCES `manager` (`idManager`);
 
 --
+-- Constraints for table `employeeProject`
+--
+ALTER TABLE `employeeProject`
+  ADD CONSTRAINT `employeeProject_fk` FOREIGN KEY (`idEmp`) REFERENCES `employee` (`idEmp`),
+  ADD CONSTRAINT `project_fk` FOREIGN KEY (`idProject`) REFERENCES `project` (`idProject`);
+
+--
 -- Constraints for table `permit`
 --
 ALTER TABLE `permit`
-  ADD CONSTRAINT `employee_fk_permit` FOREIGN KEY (`emp`) REFERENCES `employee` (`idEmp`),
+  ADD CONSTRAINT `employee_fk_permit` FOREIGN KEY (`empList`) REFERENCES `employee` (`idEmp`),
   ADD CONSTRAINT `manager_fk_permit` FOREIGN KEY (`man`) REFERENCES `manager` (`idManager`);
 
 --
 -- Constraints for table `project`
 --
 ALTER TABLE `project`
-  ADD CONSTRAINT `employee_fk_project` FOREIGN KEY (`empList`) REFERENCES `employee` (`idEmp`),
-  ADD CONSTRAINT `manager_fk_project` FOREIGN KEY (`man`) REFERENCES `manager` (`idManager`);
+  ADD CONSTRAINT `man_fk_project` FOREIGN KEY (`man`) REFERENCES `manager` (`idManager`);
+
+--
+-- Constraints for table `task`
+--
+ALTER TABLE `task`
+  ADD CONSTRAINT `task_idproject_fk` FOREIGN KEY (`idProject`) REFERENCES `project` (`idProject`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

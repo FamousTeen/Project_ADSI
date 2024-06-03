@@ -43,6 +43,7 @@ if (isset($_POST["Login"])) {
 
             // Start a session
             session_start();
+            $_SESSION['idEmp'] = $row['idEmp'];
             $_SESSION['password'] = $row['password'];
             $_SESSION['name'] = $row['empName'];
             $_SESSION['dept_name'] = $row['departmentName'];
@@ -88,4 +89,3 @@ if (isset($_POST["Login"])) {
   }
 
 mysqli_close($mysqli);
-?>

@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['projectName'], $_POST[
     $status = 'Not done';
 
     // Prepare and bind the SQL statement
-    $sql = "INSERT INTO project (startDate, Deadline, projectName, progressBar, man, status) 
+    $sql = "INSERT INTO project (`startDate`, `Deadline`, `projectName`, `progressBar`, `man`, `status`) 
             VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param("ssssss", $startDate, $projectDeadline, $projectName, $projectProgress, $idManager, $status);
