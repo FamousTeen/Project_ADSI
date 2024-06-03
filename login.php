@@ -60,8 +60,6 @@ if (isset($_POST["Login"])) {
                   </script>';
         }
     }
-<<<<<<< Updated upstream
-=======
   } else {
     $sql = "SELECT * FROM employee WHERE empName ='$name' AND password = '$password'";
     $result = mysqli_query($mysqli, $sql);
@@ -88,7 +86,6 @@ if (isset($_POST["Login"])) {
                       </script>';
     }
   }
->>>>>>> Stashed changes
-}
+
 mysqli_close($mysqli);
 ?>
