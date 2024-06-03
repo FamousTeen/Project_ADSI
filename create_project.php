@@ -1,64 +1,44 @@
 <?php
-// Enable error reporting for debugging
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+include 'db_connect.php';
+session_start(); // Start the session
 
-// Check if the form was submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Include your database connection file
-    include 'db_connect.php';
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['projectName'], $_POST['projectDeadline'], $_POST['projectProgress'], $_POST['idManager'])) {
+    // Collect input data
+    $projectName = mysqli_real_escape_string($mysqli, $_POST['projectName']);
+    $projectDeadline = mysqli_real_escape_string($mysqli, $_POST['projectDeadline']);
+    $projectProgress = mysqli_real_escape_string($mysqli, $_POST['projectProgress']);
+    $idManager = mysqli_real_escape_string($mysqli, $_POST['idManager']);
 
-    // Check if the connection is established
-    if (!$pdo) {
-        die("Could not connect to the database.");
+    // Echo to check if form data is received
+    echo "Project Name: $projectName, Deadline: $projectDeadline, Progress: $projectProgress, ID Manager: $idManager";
+
+    // Your database insertion code here...
+    // Get the current date for startDate
+    $startDate = date("Y-m-d");
+
+    // Get the manager's ID from session
+    $idManager = mysqli_real_escape_string($mysqli, $_POST['idManager']);
+    
+    // Set default status to 'Not done'
+    $status = 'Not done';
+
+    // Prepare and bind the SQL statement
+    $sql = "INSERT INTO project (startDate, Deadline, projectName, progressBar, man, status) 
+            VALUES (?, ?, ?, ?, ?, ?)";
+    $stmt = $mysqli->prepare($sql);
+    $stmt->bind_param("ssssss", $startDate, $projectDeadline, $projectName, $projectProgress, $idManager, $status);
+
+    // Execute the statement and check for success
+    if ($stmt->execute()) {
+        echo "New project created successfully.";
+    } else {
+        echo "Error: " . $stmt->error;
     }
 
-    // Get project data from the form
-    $projectName = $_POST['projectName'] ?? '';
-    $projectDeadline = $_POST['projectDeadline'] ?? '';
-    $projectProgress = $_POST['projectProgress'] ?? 0;
-    $fileTypes = $_POST['fileTypes'] ?? [];
-
-    // Combine file types with project details
-    $projectDetail = $projectName . ' - File Types: ' . implode(', ', $fileTypes);
-
-    // Get selected employee IDs
-    $employeeList = $_POST['employeeList'] ?? []; // This will be an array of selected employee IDs
-
-    // Validate and sanitize the input data as needed
-    if (empty($projectName) || empty($projectDeadline) || empty($employeeList)) {
-        echo "Required fields are missing.";
-        exit();
-    }
-
-    try {
-        // Insert project data into the projects table
-        $sql = "INSERT INTO projects (startDate, Deadline, projectDetail, progressBar, empList, man, status) VALUES (NOW(), ?, ?, ?, ?, 1, 'In Progress')";
-        $stmt = $pdo->prepare($sql);
-        
-        // Debug: Check if the statement was prepared
-        if (!$stmt) {
-            die("Failed to prepare the SQL statement.");
-        }
-
-        $success = $stmt->execute([$projectDeadline, $projectDetail, $projectProgress, implode(',', $employeeList)]);
-
-        // Check if the insert was successful
-        if ($success) {
-            // Redirect or display success message
-            header("Location: createProject_page.php");
-            exit();
-        } else {
-            echo "Failed to insert data into the database.";
-        }
-    } catch (PDOException $e) {
-        // Handle database errors
-        echo "<script>console.error('Database error: " . addslashes($e->getMessage()) . "');</script>";
-        echo "Error: " . htmlspecialchars($e->getMessage());
-    }
+    // Close the statement and database connection
+    $stmt->close();
+    $mysqli->close();
 } else {
-    // Handle invalid form submission
-    echo "Invalid request";
+    echo "Invalid request or missing form data.";
 }
 ?>
