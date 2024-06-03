@@ -49,7 +49,7 @@
           </div>
           <div class="mx-3 d-flex justify-content-center hstack">
             <p class="mt-3">Doesn't have an account?&nbsp;</p>
-            <a href="">Sign up</a>
+            <a href="signUpPage.php">Sign up</a>
           </div>
           <div class="mb-3 submit-button d-flex justify-content-center">
             <button value="Login" name="Login" type="submit" class="mt-0 w-50 btn btn-primary">Submit</button>

@@ -24,7 +24,7 @@ if (isset($_POST["Login"])) {
       $_SESSION['no_telp'] = $row['no_telp'];
       $_SESSION['status'] = $row['status'];
   
-      header("Location: createProject.html");
+      header("Location: createProject_page.php");
       exit();
     } else {
       echo '<script>
