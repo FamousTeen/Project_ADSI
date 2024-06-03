@@ -14,9 +14,32 @@ include('db_connect.php');
     
 </head>
 <body>
+<<<<<<< Updated upstream
 <header>
     <div class="header-left">
         <h1>DivRoom</h1>
+=======
+    <header>
+        <div class="header-left">
+            <h1>DivRoom</h1>
+        </div>
+        <div class="header-right">
+            <button id="createProjectBtn">Create Project</button>
+        </div>
+    </header>
+    <div class="container">
+        <aside class="sidebar">
+            <ul>
+                <li id="projectSide" class="active">Projects</li>
+                <a style="text-decoration: none; color: inherit;" href="createPermitReq.php"><li id="permitSide">Permit</li></a>
+                <a style="text-decoration: none; color: inherit;" href="progressBar.php"><li id="customSide">Custom Project Progress</li></a>
+                <li id="creditSide">Credit score & awards</li>
+            </ul>
+        </aside>
+        <main class="main-content">
+            <!-- Project Cards will be added here -->
+        </main>
+>>>>>>> Stashed changes
     </div>
     <div class="header-right">
         <?php

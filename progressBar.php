@@ -39,6 +39,7 @@ foreach ($result as $row) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Classroom UI</title>
+    <link rel="stylesheet" href="progressBar.css">
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -54,8 +55,8 @@ foreach ($result as $row) {
         <aside class="sidebar">
             <ul>
                 <a style="text-decoration: none; color: inherit;" href="createProject.html"><li id="projectSide">My Project</li></a>
-                <li id="permitSide" class="active">Permit Request</li>
-                <a style="text-decoration: none; color: inherit;" href="createProject.html"><li id="customSide">Custom Project Progress</li></a>
+                <li id="permitSide">Permit Request</li>
+                <a style="text-decoration: none; color: inherit;" href="createProject.html"><li id="customSide" class="active">Custom Project Progress</li></a>
                 <li id="creditSide">Credit score & awards</li>
             </ul>
         </aside>

@@ -1,0 +1,192 @@
+/* body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f4f4f4;
+}
+
+.navbar {
+    width: 100%;
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-icons {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.hamburger-icon {
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.profile-icon {
+    font-size: 24px;
+    cursor: pointer;
+    margin-left: auto;
+} */
+
+.progress-bar-container {
+    width: 80%;
+    height: 30px;
+    background-color: #e0e0e0;
+    border-radius: 25px;
+    position: relative;
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+.progress-bar {
+    height: 100%;
+    position: absolute;
+    top: 0;
+    transition: width 0.4s ease;
+}
+
+.background {
+    background-color: #e0e0e0;
+    z-index: 1;
+}
+
+.approved {
+    background-color: #4caf50; /* Green */
+    z-index: 3; /* Ensure this bar is above the background bar */
+}
+
+.not-approved {
+    background-color: #ffeb3b; /* Yellow */
+    color: #000; /* Black text for better contrast on yellow background */
+    z-index: 2; /* Ensure this bar is below the approved bar */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .progress-bar-container {
+        width: 90%;
+    }
+}
+
+@media (max-width: 480px) {
+    .progress-bar-container {
+        width: 100%;
+    }
+}
+
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    cursor: pointer;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.task-controls {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.task-controls input,
+.task-controls textarea {
+    margin-bottom: 10px;
+    padding: 10px;
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.task-list {
+    width: 80%;
+    margin-top: 20px;
+}
+
+.task-list h2 {
+    margin-bottom: 10px;
+}
+
+.task-list div {
+    margin-bottom: 10px;
+}
+
+.task-list ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.task-list li {
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+}
+
+.task-list li .task-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.task-list li .task-info button {
+    margin-left: 10px;
+}
+
+.task-list .approved {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.task-list .not-approved {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.task-list .unfinished {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.description {
+    margin-top: 10px;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.task-list button {
+    padding: 5px 10px;
+    cursor: pointer;
+    border: none;
+    background-color: #28a745;
+    color: white;
+    border-radius: 5px;
+}
+
+.task-list button.deny {
+    background-color: #dc3545;
+}
+
+.task-list button:hover {
+    opacity: 0.8;
+}

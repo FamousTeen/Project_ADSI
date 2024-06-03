@@ -60,6 +60,35 @@ if (isset($_POST["Login"])) {
                   </script>';
         }
     }
+<<<<<<< Updated upstream
+=======
+  } else {
+    $sql = "SELECT * FROM employee WHERE empName ='$name' AND password = '$password'";
+    $result = mysqli_query($mysqli, $sql);
+  
+    if (mysqli_num_rows($result) == 1) {
+      $row = mysqli_fetch_assoc($result);
+  
+      // Start a session
+      session_start(); 
+      $_SESSION['idEmp'] = $row['idEmp'];
+      $_SESSION['password'] = $row['password'];
+      $_SESSION['name'] = $row['empName'];
+      $_SESSION['dept_name'] = $row['departmentName'];
+      $_SESSION['no_telp'] = $row['no_telp'];
+      $_SESSION['credit_score'] = $row['credit_score'];
+      $_SESSION['status'] = $row['status'];
+  
+      header("Location: createProject_page.php");
+      exit();
+    } else {
+      echo '<script>
+                          window.location.href = "login_page.php";
+                          alert("Login failed. Invalid username or password.")
+                      </script>';
+    }
+  }
+>>>>>>> Stashed changes
 }
 mysqli_close($mysqli);
 ?>
