@@ -1,4 +1,38 @@
+<?php 
+include("db_connect.php");
 
+session_start();
+$dept_name = $_SESSION['dept_name'];
+
+$sql = "SELECT * FROM manager WHERE departmentName ='$dept_name'";
+$result = mysqli_query($mysqli, $sql);
+
+if (mysqli_num_rows($result) == 1) {
+  $row = mysqli_fetch_assoc($result);
+
+  $_SESSION['manager_name'] = $row['managerName'];
+}
+
+$idEmp = $_SESSION['idEmp'];
+$sql = "SELECT * FROM permit WHERE emp = $idEmp";
+$result = mysqli_query($mysqli, $sql);
+
+$data = array();
+
+$index = 0;
+$permitIndex = 0;
+
+foreach ($result as $row) {
+    $permitIndex +=1;
+    $data[] = array(
+        'title' => $row['permitTitle'],
+        'desc' => $row['description'],
+        'date' => $row['permitDate'],
+        'status' => $row['status']
+    );
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,15 +47,15 @@
             <h1>DivRoom</h1>
         </div>
         <div class="header-right">
-            <button id="createProjectBtn">Create Project</button>
+            <button id="createProjectBtn">Request New Permit</button>
         </div>
     </header>
     <div class="container">
         <aside class="sidebar">
             <ul>
-                <li id="projectSide" class="active">Projects</li>
-                <li id="permitSide">Permit</li>
-                <li id="customSide">Custom Project Progress</li>
+                <a style="text-decoration: none; color: inherit;" href="createProject.html"><li id="projectSide">My Project</li></a>
+                <li id="permitSide" class="active">Permit Request</li>
+                <a style="text-decoration: none; color: inherit;" href="createProject.html"><li id="customSide">Custom Project Progress</li></a>
                 <li id="creditSide">Credit score & awards</li>
             </ul>
         </aside>
@@ -34,90 +68,19 @@
     <div id="createProjectModal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
-            <h2>Create New Project</h2>
-            <form id="createProjectForm">
-                <label for="projectName">Project Name:</label>
-                <input type="text" id="projectName" name="projectName" >
+            <h2>Request new permit</h2>
+            <p>Manager name: <?php echo $_SESSION['manager_name']?></p>
+            <form action="addPermit.php" id="createProjectForm" method="POST">
+                <label for="permitTitle">Permit Title:</label>
+                <input style="width: 97%;" type="text" id="permitTitle" name="permitTitle" >
                 
-                <label for="projectDeadline">Project Deadline:</label>
-                <input type="date" id="projectDeadline" name="projectDeadline" >
+                <label for="permitDesc">Permit Description:</label>
+                <textarea style="width: 100%;" placeholder="Enter permit description" id="permitDesc" name="permitDesc"></textarea>
 
-                <!-- Add Team Members Section -->
-            <label for="task">Add Task:</label>
-            <div id="task">
-                <button type="button" id="addTaskFormButton">+ Add Task</button>
-            </div>
-
-            <div id="newTaskForm" class="hidden">
-                <label for="taskName">Name:</label>
-                <input type="text" id="taskNameId"  >
+                <label for="permitDate">Permit Date:</label>
+                <input style="width: 97%;" type="date" id="permitDate" name="permitDate" >
                 
-                <label for="taskDescription">Description:</label>
-                <input type="text" id="taskDescription">
-
-                <label for="taskProgress">Progress:</label>
-                <input type="number" id="taskProgress" min="0" max="100">
-                
-
-                <button type="button" id="addTaskButton">Add</button>
-            </div>
-
-            <table id="tasklist">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Progress</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-
-                
-                <label for="projectProgress">Project Progress:</label>
-                <input type="number" id="projectProgress" name="projectProgress" min="0" max="100" required>
-                
-                <label for="teamMembers">Add Team Members:</label>
-                <div id="teamMembers">
-                    <button type="button" id="addMemberFormBtn">+ Add Member</button>
-                </div>
-                
-                <div id="newMemberForm" class="hidden">
-                    <label for="memberName">Name:</label>
-                    <input type="text" id="memberNameId"  >
-                    
-                    <label for="memberEmail">Email:</label>
-                    <input type="email" id="memberEmail"  >
-                    
-                    
-                    <button type="button" id="addMemberBtn">Add</button>
-                </div>
-                
-                <table id="memberList">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-                
-                <label for="fileTypes">File Submission Type:</label>
-<select id="fileTypes" name="fileTypes" required multiple>
-    <option value="pdf">PDF</option>
-    <option value="doc">DOC</option>
-    <option value="ppt">PPT</option>
-    <option value="xls">XLS</option>
-    <option value="jpg">JPG</option>
-    <option value="png">PNG</option>
-</select>
-
-
-                
-                <button type="submit" id="saveProjectButton">Create Project</button>
+                <button name="Send" type="submit" id="saveProjectButton">Send Permit</button>
             </form>
         </div>
     </div>
@@ -427,69 +390,7 @@ form select {
     const modal = document.getElementById('createProjectModal');
     const closeBtn = document.querySelector('.close-btn');
     const createProjectForm = document.getElementById('createProjectForm');
-    const addMemberFormBtn = document.getElementById('addMemberFormBtn');
-    const newMemberForm = document.getElementById('newMemberForm');
-    const addMemberBtn = document.getElementById('addMemberBtn');
-    const memberList = document.getElementById('memberList').querySelector('tbody');
     const mainContent = document.querySelector('.main-content');
-
-    const addTaskFormButton = document.getElementById('addTaskFormButton');
-    const newTaskForm = document.getElementById('newTaskForm');
-    const addTaskButton = document.getElementById('addTaskButton');
-    const tasklist = document.getElementById('tasklist').querySelector('tbody');
-
-    
-
-    addTaskButton.onclick = () => {
-        const taskname = document.getElementById('taskNameId').value;
-        const taskDescription = document.getElementById('taskDescription').value;
-        const taskProgress = parseInt(document.getElementById('taskProgress').value);
-
-        if (taskname && taskDescription && !isNaN(taskProgress) && taskProgress >= 0 && taskProgress <= 100) {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${taskname}</td>
-                <td>${taskDescription}</td>
-                <td>${taskProgress}%</td>
-                <td><button type="button" class="remove-task">Remove</button></td>
-            `;
-            tasklist.appendChild(row);
-
-            row.querySelector('.remove-task').onclick = () => {
-                row.remove();
-                updateProjectProgress(); // Update project progress when a task is removed
-            }
-
-            updateProjectProgress(); // Update project progress when a new task is added
-
-            // Reset form
-            document.getElementById('taskNameId').value = '';
-            document.getElementById('taskDescription').value = '';
-            document.getElementById('taskProgress').value = '';
-            newTaskForm.classList.add('hidden'); // Close the add task form
-        } else {
-            alert('Please fill in all fields correctly');
-        }
-    }
-
-    function updateProjectProgress() {
-    const tasks = document.querySelectorAll('#tasklist tbody tr');
-    let totalProgress = 0;
-    tasks.forEach(task => {
-        const progressText = task.querySelector('td:nth-child(3)').textContent;
-        const progress = parseInt(progressText.replace('%', ''));
-        if (!isNaN(progress) && progress >= 0 && progress <= 100) {
-            totalProgress += progress;
-        }
-    });
-    const projectProgressInput = document.getElementById('projectProgress');
-    projectProgressInput.value = totalProgress; // Update project progress with accumulated progress
-}
-
-
-    addTaskFormButton.onclick = () => {
-        newTaskForm.classList.toggle('hidden');
-    }
 
 
     createProjectBtn.onclick = () => {
@@ -508,72 +409,29 @@ form select {
         }
     }
 
-    addMemberFormBtn.onclick = () => {
-        newMemberForm.classList.toggle('hidden');
-    }
-
-    addMemberBtn.onclick = () => {
-        const name = document.getElementById('memberNameId').value;
-        const email = document.getElementById('memberEmail').value;
-
-        if (name && email) {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${name}</td>
-                <td>${email}</td>
-                <td><button type="button" class="remove-member">Remove</button></td>
-            `;
-            memberList.appendChild(row);
-
-            row.querySelector('.remove-member').onclick = () => {
-                row.remove();
-            }
-
-            // Reset form
-            document.getElementById('memberNameId').value = '';
-            document.getElementById('memberEmail').value = '';
-            newMemberForm.classList.add('hidden'); // Close the add member form
-        } else {
-            alert('Please fill in all fields');
-        }
-    }
-
-    createProjectForm.addEventListener('submit', (e) => {
-    e.preventDefault(); // Prevent form submission
-
-    const projectName = document.getElementById('projectName').value;
-    const projectDeadline = document.getElementById('projectDeadline').value;
-    const projectProgress = document.getElementById('projectProgress').value;
-    const fileTypes = Array.from(document.getElementById('fileTypes').selectedOptions).map(option => option.value);
+    const permitDate = document.getElementById('permitDate').value;
     
     const currentDate = new Date();
-    const selectedDeadline = new Date(projectDeadline);
+    const selectedDate = new Date(permitDate);
 
-    if (projectName && projectDeadline && projectProgress && fileTypes.length > 0) {
-        if (selectedDeadline < currentDate) {
+    if (permitTitle && permitDate) {
+        if (selectedDate < currentDate) {
             alert('Please select a deadline after the current date.');
             return; // Exit the function if the deadline is before the current date
         }
 
-        const projectCard = document.createElement('div');
-        projectCard.classList.add('class-card');
-        projectCard.innerHTML = `
-            <h2>${projectName}</h2>
-            <p>Deadline: ${projectDeadline}</p>
-            <p>Progress: ${projectProgress}%</p>
-            <p>File Types: ${fileTypes.join(', ')}</p>
-            <button>Edit Project</button>
+        const permitCard = document.createElement('div');
+        permitCard.classList.add('class-card');
+        permitCard.innerHTML = `
+            <h2>${permitTitle}</h2>
+            <p>Description: ${permitDesc}</p>
+            <p>Deadline: ${permitDate}</p>
+            <button>See Permit Detail</button>
         `;
-        mainContent.appendChild(projectCard);
-
-        // Reset form and close modal
-        createProjectForm.reset();
-        modal.style.display = 'none';
+        mainContent.appendChild(permitCard);
     } else {
         alert('Please fill in all required fields');
     }
-});
-
 
 });
 

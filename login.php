@@ -1,9 +1,5 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 include("db_connect.php");
-echo isset($_POST["Login"]) ? 'Form is submitted' : 'Form is not submitted';
 if (isset($_POST["Login"])) {
   $name = mysqli_real_escape_string($mysqli, $_POST['name']);
   $password = mysqli_real_escape_string($mysqli, $_POST['pass']);
@@ -40,7 +36,8 @@ if (isset($_POST["Login"])) {
       $row = mysqli_fetch_assoc($result);
   
       // Start a session
-      session_start();
+      session_start(); 
+      $_SESSION['idEmp'] = $row['idEmp'];
       $_SESSION['password'] = $row['password'];
       $_SESSION['name'] = $row['empName'];
       $_SESSION['dept_name'] = $row['departmentName'];
