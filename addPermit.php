@@ -1,4 +1,5 @@
 <?php
+include("db_connect.php");
 
 if (isset($_POST["Send"])) {
   $permitTitle = mysqli_real_escape_string($mysqli, $_POST['permitTitle']);

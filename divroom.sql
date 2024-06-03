@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 02, 2024 at 12:45 PM
+-- Generation Time: Jun 03, 2024 at 04:42 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -85,7 +85,6 @@ CREATE TABLE `manager` (
   `managerName` varchar(255) NOT NULL,
   `departmentName` varchar(255) NOT NULL,
   `no_telp` varchar(255) NOT NULL,
-  `empList` int(11) NOT NULL,
   `status` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -94,8 +93,8 @@ CREATE TABLE `manager` (
 -- Dumping data for table `manager`
 --
 
-INSERT INTO `manager` (`idManager`, `managerName`, `departmentName`, `no_telp`, `empList`, `status`, `password`) VALUES
-(1, 'Warren', 'IT', '039829473489', 1, 'onDuty', '12345');
+INSERT INTO `manager` (`idManager`, `managerName`, `departmentName`, `no_telp`, `status`, `password`) VALUES
+(1, 'Warren', 'IT', '039829473489', 'onDuty', '12345');
 
 -- --------------------------------------------------------
 
@@ -108,8 +107,9 @@ CREATE TABLE `permit` (
   `permitTitle` varchar(255) NOT NULL,
   `description` varchar(255) NOT NULL,
   `man` int(255) NOT NULL,
-  `empList` int(255) NOT NULL,
-  `status` varchar(255) NOT NULL
+  `emp` int(255) NOT NULL,
+  `status` varchar(255) NOT NULL,
+  `permitDate` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -157,15 +157,14 @@ ALTER TABLE `event`
 -- Indexes for table `manager`
 --
 ALTER TABLE `manager`
-  ADD PRIMARY KEY (`idManager`),
-  ADD KEY `employee_fk_manager` (`empList`);
+  ADD PRIMARY KEY (`idManager`);
 
 --
 -- Indexes for table `permit`
 --
 ALTER TABLE `permit`
   ADD PRIMARY KEY (`permitId`),
-  ADD KEY `employee_fk_permit` (`empList`),
+  ADD KEY `employee_fk_permit` (`emp`),
   ADD KEY `manager_fk_permit` (`man`);
 
 --
@@ -228,16 +227,10 @@ ALTER TABLE `announcement`
   ADD CONSTRAINT `manager_fk_anc` FOREIGN KEY (`man`) REFERENCES `manager` (`idManager`);
 
 --
--- Constraints for table `manager`
---
-ALTER TABLE `manager`
-  ADD CONSTRAINT `employee_fk_manager` FOREIGN KEY (`empList`) REFERENCES `employee` (`idEmp`);
-
---
 -- Constraints for table `permit`
 --
 ALTER TABLE `permit`
-  ADD CONSTRAINT `employee_fk_permit` FOREIGN KEY (`empList`) REFERENCES `employee` (`idEmp`),
+  ADD CONSTRAINT `employee_fk_permit` FOREIGN KEY (`emp`) REFERENCES `employee` (`idEmp`),
   ADD CONSTRAINT `manager_fk_permit` FOREIGN KEY (`man`) REFERENCES `manager` (`idManager`);
 
 --

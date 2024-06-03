@@ -409,16 +409,19 @@ form select {
         }
     }
 
-    const permitDate = document.getElementById('permitDate').value;
+    $('#permitDate').change(function() {
+        const permitDate = document.getElementById('permitDate').value;
     
-    const currentDate = new Date();
-    const selectedDate = new Date(permitDate);
+        const currentDate = new Date();
+        const selectedDate = new Date(permitDate);
 
-    if (permitTitle && permitDate) {
-        if (selectedDate < currentDate) {
-            alert('Please select a deadline after the current date.');
-            return; // Exit the function if the deadline is before the current date
+        if (permitTitle && permitDate) {
+            if (selectedDate < currentDate) {
+                alert('Please select a deadline after the current date.');
+                return; // Exit the function if the deadline is before the current date
+            }
         }
+    });
 
         const permitCard = document.createElement('div');
         permitCard.classList.add('class-card');

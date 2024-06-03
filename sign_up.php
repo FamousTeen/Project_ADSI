@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-=======
 <?php
 include('db_connect.php');
 
@@ -53,4 +51,3 @@ if (isset($_POST['signup'])) {
         }
     }
 }
->>>>>>> Stashed changes
