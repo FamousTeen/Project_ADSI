@@ -418,9 +418,6 @@ form select {
         }
     });
 
-    
-    const permitCard = document.createElement('div');
-    permitCard.classList.add('class-card');
 
     <?php 
     $permitIndex = 0;
@@ -432,7 +429,9 @@ form select {
             'status' => $row['status']
         );
     ?>
-        permitCard.innerHTML += `
+        var permitCard = document.createElement('div');
+        permitCard.classList.add('class-card');
+        permitCard.innerHTML = `
             <h2>Permit title: <?php echo $data[0]['title']?></h2>
             <p>Description: <?php echo $data[0]['desc']?></p>
             <p>Permit date: <?php echo $data[0]['date']?></p>

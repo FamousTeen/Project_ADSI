@@ -1,5 +1,5 @@
 <?php
-include('create_project.php');
+// include('create_project.php');
 include('db_connect.php');
 ?>
 <!DOCTYPE html>
@@ -43,20 +43,6 @@ include('db_connect.php');
         }
         ?>
     </div>
-</header>
-<div class="container">
-    <aside class="sidebar">
-        <ul>
-            <li id="projectSide" class="active">Projects</li>
-            <li id="permitSide">Permit</li>
-            <li id="customSide">Custom Project Progress</li>
-            <li id="creditSide">Credit score & awards</li>
-        </ul>
-    </aside>
-    <main class="main-content">
-        <!-- Project Cards will be added here -->
-    </main>
-</div>
 
 <!-- Create Project Modal -->
 <div id="createProjectModal" class="modal">
