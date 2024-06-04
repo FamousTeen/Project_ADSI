@@ -37,4 +37,3 @@ if (isset($_POST['addTask'])) {
     header("Location: createProject_page.php");
     exit();
 }
-?>

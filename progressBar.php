@@ -54,10 +54,10 @@ foreach ($result as $row) {
     <div class="container">
         <aside class="sidebar">
             <ul>
-                <a style="text-decoration: none; color: inherit;" href="createProject.html"><li id="projectSide">My Project</li></a>
-                <li id="permitSide">Permit Request</li>
-                <a style="text-decoration: none; color: inherit;" href="createProject.html"><li id="customSide" class="active">Custom Project Progress</li></a>
-                <li id="creditSide">Credit score & awards</li>
+                <a style="text-decoration: none; color: inherit;" href="createProject_page"><li id="permitSide" >My Projects</li></a>
+                <a style="text-decoration: none; color: inherit;" href="createPermitReq.php"><li id="permitSide" >Permit Request</li></a>
+                <a style="text-decoration: none; color: inherit;" href="#"><li id="customSide" class="active">Custom Project Progress</li></a>
+                <a style="text-decoration: none; color: inherit;" href="creditScore.php"><li id="creditSide">Credit score & awards</li></a>
             </ul>
         </aside>
         <main class="main-content">

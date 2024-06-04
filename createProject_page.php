@@ -2,7 +2,18 @@
 session_start();
 include('db_connect.php');
 
-// Fetch project data from the database
+$result2 = null;
+if (isset($_SESSION['idMan'])) {
+    $idMan = $_SESSION['idMan'];
+
+    $sql = "SELECT * FROM permit WHERE man = $idMan";
+    $result2 = mysqli_query($mysqli, $sql);
+
+    $data = array();
+}
+
+$data = array();
+
 $query = "SELECT * FROM project";
 $result = mysqli_query($mysqli, $query);
 
@@ -35,8 +46,6 @@ foreach ($projects as $project) {
     $project_employees[$project_id] = $employees;
     mysqli_free_result($employee_result);
 }
-
-mysqli_close($mysqli);
 
 // Pass the project and employee data to JavaScript
 $projects_json = json_encode($projects);
@@ -118,6 +127,15 @@ $project_employees_json = json_encode($project_employees);
             <h1>DivRoom</h1>
         </div>
         <div class="header-right">
+            <?php
+            if (isset($_SESSION['idMan'])) {
+            ?>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bell" viewBox="0 0 16 16" id="notif">
+                <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4 4 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4 4 0 0 0-3.203-3.92zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5 5 0 0 1 13 6c0 .88.32 4.2 1.22 6"/>
+            </svg>
+            <?php
+            }
+            ?>
             <?php if (isset($_SESSION['name']) && $_SESSION['role'] == 'manager'): ?>
                 <button id="createProjectBtn">Create Project</button>
             <?php endif; ?>
@@ -126,10 +144,10 @@ $project_employees_json = json_encode($project_employees);
     <div class="container">
         <aside class="sidebar">
             <ul>
-            <li id="projectSide" class="active">Projects</li>
-                <a style="text-decoration: none; color: inherit;" href="createPermitReq.php"><li id="permitSide">Permit</li></a>
+                <a style="text-decoration: none; color: inherit;" href="#"><li id="permitSide" class="active">My Projects</li></a>
+                <a style="text-decoration: none; color: inherit;" href="createPermitReq.php"><li id="permitSide" >Permit Request</li></a>
                 <a style="text-decoration: none; color: inherit;" href="progressBar.php"><li id="customSide">Custom Project Progress</li></a>
-               <li id="creditSide">Credit score & awards</li>
+                <a style="text-decoration: none; color: inherit;" href="creditScore.php"><li id="creditSide">Credit score & awards</li></a>
             </ul>
         </aside>
         <main class="main-content">
@@ -153,6 +171,35 @@ $project_employees_json = json_encode($project_employees);
 
                 <button type="submit" name="submit" id="saveProjectButton">Create Project</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Create Notif Modal -->
+
+    
+    <div id="createProjectModal2" class="modal" style="display: none;">
+        <div class="modal-content" id="modal-notif-content">
+            <script>
+                const createModalNotif = document.getElementById('modal-notif-content');
+                <?php
+                    $permitIndex = 0;
+                    foreach ($result2 as $row) {
+                        $data[$permitIndex] = array(
+                            'title' => $row['permitTitle'],
+                            'desc' => $row['description'],
+                            'date' => $row['permitDate'],
+                            'status' => $row['status']
+                        );
+                ?>
+                createModalNotif.innerHTML += `
+                    <h2>Permit title: <?php echo $data[$permitIndex]['title']?></h2>
+                    <p>Description: <?php echo $data[$permitIndex]['desc']?></p>
+                    <p>Permit date: <?php echo $data[$permitIndex]['date']?></p>
+                    <button style="background-color:green;color: white;"><?php echo $data[$permitIndex]['status']?></button>
+            `;
+            <?php  $permitIndex +=1; };  
+                ?>
+            </script>
         </div>
     </div>
 
@@ -208,8 +255,11 @@ $project_employees_json = json_encode($project_employees);
     <script>
         document.addEventListener('DOMContentLoaded', () => {
     const createProjectBtn = document.getElementById('createProjectBtn');
+    const cekNotif = document.getElementById('notif');
     const createProjectModal = document.getElementById('createProjectModal');
+    const createProjectModal2 = document.getElementById('createProjectModal2');
     const closeBtns = document.querySelectorAll('.close-btn');
+    const closeBtns2 = document.querySelectorAll('.close-btn2');
     const addEmployeeModal = document.getElementById('addEmployeeModal');
     const addTaskModal = document.getElementById('addTaskModal');
     const employeeSelect = document.getElementById('employeeSelect');
@@ -250,7 +300,17 @@ $project_employees_json = json_encode($project_employees);
         createProjectModal.style.display = 'block';
     });
 
+    cekNotif.addEventListener('click', () => {
+        createProjectModal2.style.display = 'block';
+    });
+
     closeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            btn.closest('.modal').style.display = 'none';
+        });
+    });
+
+    closeBtns2.forEach(btn => {
         btn.addEventListener('click', () => {
             btn.closest('.modal').style.display = 'none';
         });
@@ -259,6 +319,9 @@ $project_employees_json = json_encode($project_employees);
     window.addEventListener('click', (event) => {
         if (event.target == createProjectModal) {
             createProjectModal.style.display = 'none';
+        }
+        if (event.target == createProjectModal2) {
+            createProjectModal2.style.display = 'none';
         }
         if (event.target == addEmployeeModal) {
             addEmployeeModal.style.display = 'none';
