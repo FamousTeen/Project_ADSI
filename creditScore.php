@@ -6,195 +6,193 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Classroom UI</title>
     <link rel="stylesheet" href="create_style.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="create_script.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-        }
+    <script src="https://code.jquery.com/jquery-3.7.1.js"
+        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+</head>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #0073e6;
-            padding: 10px 20px;
-            color: #fff;
-        }
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #0073e6;
+        padding: 10px 20px;
+        color: #fff;
+    }
 
-        header .header-left h1 {
-            margin: 0;
-        }
+    header .header-left h1 {
+        margin: 0;
+    }
 
-        header .header-right button {
-            padding: 10px 20px;
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+    header .header-right button {
+        padding: 5px 10px;
+        background-color: white;
+        color: #4285F4;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-left: 10px;
+    }
 
-        header .header-right button:hover {
-            background-color: #218838;
-        }
+    .container {
+        display: flex;
+        flex: 1;
+    }
 
-        .container {
-            display: flex;
-            flex: 1;
-        }
+    .sidebar {
+        width: 250px;
+        background-color: #3c4043;
+        color: white;
+        padding: 20px;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+    }
 
-        .sidebar {
-            width: 250px;
-            background-color: #3c4043;
-            color: white;
-            padding: 20px;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-        }
+    .sidebar ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+    }
 
-        .sidebar ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            width: 100%;
-        }
+    .sidebar ul a {
+        text-decoration: none;
+        color: inherit;
+    }
 
-        .sidebar ul a {
-            text-decoration: none;
-            color: inherit;
-        }
+    .sidebar ul li {
+        padding: 15px;
+        cursor: pointer;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        transition: background-color 0.3s ease;
+    }
 
-        .sidebar ul li {
-            padding: 15px;
-            cursor: pointer;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            transition: background-color 0.3s ease;
-        }
+    .sidebar ul li.active {
+        background-color: #5f6368;
+    }
 
-        .sidebar ul li.active {
-            background-color: #5f6368;
-        }
+    .main-content {
+        flex: 1;
+        padding: 20px;
+        background-color: #fff;
+        margin: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+    }
 
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            background-color: #fff;
-            margin: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
+    h2 {
+        text-align: center;
+        color: #333;
+    }
 
-        h2 {
-            text-align: center;
-            color: #333;
-        }
+    .result {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #e9ecef;
+        border-radius: 4px;
+    }
 
-        .result {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #e9ecef;
-            border-radius: 4px;
-        }
+    .employee-list {
+        margin-top: 20px;
+    }
 
-        .employee-list {
-            margin-top: 20px;
-        }
+    .employee-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
 
-        .employee-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+    .employee-table th,
+    .employee-table td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
 
-        .employee-table th,
-        .employee-table td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: left;
-        }
+    .employee-table th {
+        background-color: #f4f4f4;
+    }
 
-        .employee-table th {
-            background-color: #f4f4f4;
-        }
+    .excellent {
+        background-color: #d4edda;
+    }
 
-        .excellent {
-            background-color: #d4edda;
-        }
+    .good {
+        background-color: #c3e6cb;
+    }
 
-        .good {
-            background-color: #c3e6cb;
-        }
+    .average {
+        background-color: #ffeeba;
+    }
 
-        .average {
-            background-color: #ffeeba;
-        }
+    .below-average {
+        background-color: #f8d7da;
+    }
 
-        .below-average {
-            background-color: #f8d7da;
-        }
+    .poor {
+        background-color: #f5c6cb;
+    }
 
-        .poor {
-            background-color: #f5c6cb;
-        }
+    .popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        z-index: 1000;
+    }
 
-        .popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #fff;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            z-index: 1000;
-        }
+    .popup input {
+        width: calc(100% - 20px);
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
 
-        .popup input {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
+    .popup button {
+        width: calc(50% - 10px);
+        padding: 10px;
+        margin: 0 5px;
+    }
 
-        .popup button {
-            width: calc(50% - 10px);
-            padding: 10px;
-            margin: 0 5px;
-        }
+    .popup .save-button {
+        background-color: #28a745;
+    }
 
-        .popup .save-button {
-            background-color: #28a745;
-        }
+    .popup .cancel-button {
+        background-color: #dc3545;
+    }
 
-        .popup .cancel-button {
-            background-color: #dc3545;
-        }
+    .popup button:hover {
+        opacity: 0.9;
+    }
 
-        .popup button:hover {
-            opacity: 0.9;
-        }
-
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-    </style>
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    }
+</style>
 </head>
 
 <body>
@@ -209,13 +207,13 @@
     <div class="container">
         <aside class="sidebar">
             <ul>
-                <a style="text-decoration: none; color: inherit;" href="createProject.html">
+                <a style="text-decoration: none; color: inherit;" href="createProject.php">
                     <li id="projectSide">My Project</li>
                 </a>
-                <a style="text-decoration: none; color: inherit;" href="createProject.html">
+                <a style="text-decoration: none; color: inherit;" href="createPermitReq.php">
                     <li id="permitSide">Permit Request</li>
                 </a>
-                <a style="text-decoration: none; color: inherit;" href="createProject.html">
+                <a style="text-decoration: none; color: inherit;" href="progressBar.php">
                     <li id="customSide">Custom Project Progress</li>
                 </a>
                 <li id="creditSide" class="active">Credit score & awards</li>
