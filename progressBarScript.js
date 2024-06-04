@@ -1,112 +1,62 @@
-let tasks = [];
+let projects = {
+    'Project 1': { totalPercentage: 0, tasks: [] },
+    'Project 2': { totalPercentage: 0, tasks: [] },
+    'Project 3': { totalPercentage: 0, tasks: [] }
+};
+let currentProject = '';
 
-function updateProgress() {
-    let totalApprovedPercentage = 0;
-    let totalNotApprovedPercentage = 0;
+function switchProject() {
+    const projectSelect = document.getElementById('project-select');
+    currentProject = projectSelect.value;
 
-    tasks.forEach(task => {
-        if (task.status === 'approved') {
-            totalApprovedPercentage += task.percent;
-        } else if (task.status === 'not-approved') {
-            totalNotApprovedPercentage += task.percent;
-        }
-    });
-
-    const totalPercentage = totalApprovedPercentage + totalNotApprovedPercentage;
-
-    const notApprovedProgress = document.getElementById('not-approved-progress');
-
-    if (totalPercentage >= 100 || notApprovedProgress.style.width === '100%') {
-        notApprovedProgress.style.width = '100%';
+    if (currentProject) {
+        updateUI();
+        document.getElementById('task-form').style.display = 'block';
     } else {
-        notApprovedProgress.style.width = totalNotApprovedPercentage + '%';
+        document.getElementById('task-form').style.display = 'none';
     }
-
-    const approvedProgress = document.getElementById('approved-progress');
-
-    if (totalPercentage >= 100) {
-        approvedProgress.style.width = '100%';
-    } else {
-        approvedProgress.style.width = totalApprovedPercentage + '%';
-    }
-
-    document.getElementById('background-progress').style.width = '100%';
 }
 
-function filterTasks(filter) {
-    const taskList = document.getElementById('task-list');
-    taskList.innerHTML = '';
+function updateUI() {
+    let progressBar = document.getElementById('progress-bar');
+    progressBar.style.width = projects[currentProject].totalPercentage + '%';
 
-    tasks.forEach(task => {
-        if (filter === task.status || (filter === 'unfinished' && task.status === 'unfinished')) {
-            const taskItem = document.createElement('li');
-            taskItem.className = `task ${task.status}`;
-            taskItem.innerHTML = `
-                <div class="task-info">
-                    ${task.name}
-                    ${task.status === 'unfinished' ? `
-                        <button onclick="finishTask(${task.id})">Finish</button>
-                    ` : task.status === 'not-approved' ? `
-                        <button onclick="approveTask(${task.id})">Approve</button>
-                        <button class="deny" onclick="denyTask(${task.id})">Deny</button>
-                    ` : ''}
-                </div>
-                <p class="description">${task.description}</p>
-                <p class="deadline">Deadline: ${task.deadline}</p>
-                <p class="percentage">Percentage: ${task.percent}%</p>
-            `;
-            taskList.appendChild(taskItem);
-        }
+    let taskContainer = document.getElementById('task-container');
+    taskContainer.innerHTML = '';
+    projects[currentProject].tasks.forEach(task => {
+        let taskElement = document.createElement('div');
+        taskElement.className = 'task';
+        taskElement.innerHTML = `
+            <h3>${task.task}</h3>
+            <p>${task.description}</p>
+            <p><strong>Deadline:</strong> ${task.deadline}</p>
+            <p><strong>Percentage:</strong> ${task.percentage}%</p>
+        `;
+        taskContainer.prepend(taskElement);
     });
 }
 
 function addTask() {
-    const taskInput = document.getElementById('new-task-input');
-    const taskDesc = document.getElementById('new-task-desc');
-    const taskDeadline = document.getElementById('new-task-deadline');
-    const taskPercent = document.getElementById('new-task-percent');
-    const taskName = taskInput.value.trim();
-    const taskDescription = taskDesc.value.trim();
-    const taskDeadlineValue = taskDeadline.value;
-    const taskPercentValue = parseInt(taskPercent.value);
-    
-    if (taskName && taskPercentValue >= 0 && taskPercentValue <= 100) {
-        const newTask = {
-            id: tasks.length,
-            name: taskName,
-            description: taskDescription,
-            status: 'unfinished',
-            deadline: taskDeadlineValue,
-            percent: taskPercentValue
-        };
-        tasks.push(newTask);
-        taskInput.value = '';
-        taskDesc.value = '';
-        taskDeadline.value = '';
-        taskPercent.value = '';
-        updateProgress();
-        filterTasks('unfinished');
-    } else {
-        alert("Please enter a valid percentage between 0 and 100.");
+    let task = document.getElementById('task').value;
+    let description = document.getElementById('description').value;
+    let deadline = document.getElementById('deadline').value;
+    let percentage = parseInt(document.getElementById('percentage').value);
+
+    // Update the total percentage for the current project
+    projects[currentProject].totalPercentage += percentage;
+    if (projects[currentProject].totalPercentage > 100) {
+        projects[currentProject].totalPercentage = 100; // Cap the total percentage at 100%
     }
-}
 
-function finishTask(taskId) {
-    tasks = tasks.map(task => task.id === taskId ? { ...task, status: 'not-approved' } : task);
-    updateProgress();
-    filterTasks('unfinished');
-}
+    // Add the task to the current project
+    projects[currentProject].tasks.push({ task, description, deadline, percentage });
 
-function approveTask(taskId) {
-    tasks = tasks.map(task => task.id === taskId ? { ...task, status: 'approved' } : task);
-    updateProgress();
-    filterTasks('not-approved');
-}
+    // Update the UI to reflect the new state
+    updateUI();
 
-function denyTask(taskId) {
-    tasks = tasks.filter(task => task.id !== taskId);
-    updateProgress();
-    filterTasks('not-approved');
+    // Clear form fields
+    document.getElementById('task').value = '';
+    document.getElementById('description').value = '';
+    document.getElementById('deadline').value = '';
+    document.getElementById('percentage').value = '';
 }
-
-document.addEventListener('DOMContentLoaded', () => filterTasks('approved'));

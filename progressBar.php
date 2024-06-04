@@ -68,39 +68,42 @@ foreach ($result as $row) {
         <div class="progress-bar not-approved" id="not-approved-progress" style="width: 0%;"></div>
     </div>
 
-    <div class="task-controls">
-        <input type="text" id="new-task-input" placeholder="Enter new task">
-        <textarea id="new-task-desc" placeholder="Enter task description and file requirement"></textarea>
-        <input type="date" id="new-task-deadline" placeholder="Enter deadline">
-        <input type="number" id="new-task-percent" placeholder="Enter task percentage (0-100)">
-        <button onclick="addTask()">Add Task</button>
+    <div class="project-selection">
+        <label for="project-select">Select Project:</label>
+        <select id="project-select" onchange="switchProject()">
+            <option value="">--Select Project--</option>
+            <option value="Project 1">Project 1</option>
+            <option value="Project 2">Project 2</option>
+            <option value="Project 3">Project 3</option>
+        </select>
     </div>
 
-    <div class="task-list">
-        <h2>Task List</h2>
-        <div>
-            <input type="radio" id="filter1" name="filter" value="approved" checked onclick="filterTasks('approved')">
-            <label for="filter1">Finished and Approved</label>
-        </div>
-        <div>
-            <input type="radio" id="filter2" name="filter" value="not-approved" onclick="filterTasks('not-approved')">
-            <label for="filter2">Finished not Approved</label>
-        </div>
-        <div>
-            <input type="radio" id="filter3" name="filter" value="unfinished" onclick="filterTasks('unfinished')">
-            <label for="filter3">Unfinished</label>
-        </div>
-        <ul id="task-list">
-            <!-- Tasks will be dynamically added here -->
-        </ul>
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
     </div>
 
+    <div class="task-form" style="display:none;" id="task-form">
+        <h2>Add Task</h2>
+        <form action="progressBar_query.php" method="POST"></form>
+        <label for="task">Task:</label>
+        <input type="text" id="task" name="task">
+
+        <label for="description">Description:</label>
+        <textarea id="description" name="description"></textarea>
+
+        <label for="deadline">Deadline:</label>
+        <input type="date" id="deadline" name="deadline">
+
+        <label for="percentage">Percentage:</label>
+        <input type="number" id="percentage" name="percentage" min="0" max="100">
+
+        <input type="hidden" id="idProject" name="idProject">
+
+        <button type="submit" name="addtask" onclick="addTask()">Add Task</button>
+    </div>
+
+    <div id="task-container"></div>
     <script src="progressBarScript.js"></script>
-
-            <!-- Project Cards will be added here -->
-        </main>
-    </div>
-
     <!-- Create Project Modal -->
     
 
