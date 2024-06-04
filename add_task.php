@@ -7,9 +7,10 @@ if (isset($_POST['addTask'])) {
     $taskDescription = $_POST['taskDescription'];
     $progressTask = $_POST['progressTask'];
     $projectId = $_POST['projectId'];
+    $taskDeadline = $_POST['taskDeadline'];
 
     // Insert the task into the taska table
-    $task_query = "INSERT INTO task (taskName, taskDescription, progressTask, idProject_task) VALUES ('$taskName', '$taskDescription', '$progressTask', '$projectId')";
+    $task_query = "INSERT INTO task (taskName, taskDescription, taskDeadline, progressTask, idProject_task) VALUES ('$taskName', '$taskDescription', '$taskDeadline', '$progressTask', '$projectId')";
     
     if (mysqli_query($mysqli, $task_query)) {
         echo "Task added successfully.";
