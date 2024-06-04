@@ -40,10 +40,10 @@ $data = array();
     <div class="container">
         <aside class="sidebar">
             <ul>
-                <a style="text-decoration: none; color: inherit;" href="createProject.html"><li id="projectSide">My Project</li></a>
-                <li id="permitSide" class="active">Permit Request</li>
-                <a style="text-decoration: none; color: inherit;" href="createProject.html"><li id="customSide">Custom Project Progress</li></a>
-                <li id="creditSide">Credit score & awards</li>
+                <a style="text-decoration: none; color: inherit;" href="createProject_page.php"><li id="permitSide" >My Projects</li></a>
+                <a style="text-decoration: none; color: inherit;" href="#"><li id="permitSide" class="active">Permit Request</li></a>
+                <a style="text-decoration: none; color: inherit;" href="progressBar.php"><li id="customSide">Custom Project Progress</li></a>
+                <a style="text-decoration: none; color: inherit;" href="creditScore.php"><li id="creditSide">Credit score & awards</li></a>
             </ul>
         </aside>
         <main class="main-content">
@@ -432,10 +432,10 @@ form select {
         var permitCard = document.createElement('div');
         permitCard.classList.add('class-card');
         permitCard.innerHTML = `
-            <h2>Permit title: <?php echo $data[0]['title']?></h2>
-            <p>Description: <?php echo $data[0]['desc']?></p>
-            <p>Permit date: <?php echo $data[0]['date']?></p>
-            <button style="background-color:green;color: white;"><?php echo $data[0]['status']?></button>
+            <h2>Permit title: <?php echo $data[$permitIndex]['title']?></h2>
+            <p>Description: <?php echo $data[$permitIndex]['desc']?></p>
+            <p>Permit date: <?php echo $data[$permitIndex]['date']?></p>
+            <button style="background-color:green;color: white;"><?php echo $data[$permitIndex]['status']?></button>
         `;
         mainContent.appendChild(permitCard);
     <?php  $permitIndex +=1; };  ?>

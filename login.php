@@ -18,6 +18,7 @@ if (isset($_POST["Login"])) {
 
             // Start a session
             session_start();
+            $_SESSION['idMan'] = $row['idManager'];
             $_SESSION['password'] = $row['password'];
             $_SESSION['name'] = $row['managerName'];
             $_SESSION['dept_name'] = $row['departmentName'];
@@ -30,7 +31,7 @@ if (isset($_POST["Login"])) {
             exit();
         } else {
             echo '<script>
-                      window.location.href = "login_page.php";
+                      window.location.href = "loginPage.php";
                       alert("Login failed. Invalid username or password.")
                   </script>';
         }
@@ -56,7 +57,7 @@ if (isset($_POST["Login"])) {
             exit();
         } else {
             echo '<script>
-                      window.location.href = "login_page.php";
+                      window.location.href = "loginPage.php";
                       alert("Login failed. Invalid username or password.")
                   </script>';
         }

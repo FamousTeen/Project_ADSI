@@ -2,10 +2,6 @@
    
 document.addEventListener('DOMContentLoaded', () => {
     
-    const permitSide = document.getElementById('permitSide');
-    const projectSide = document.getElementById('projectSide');
-    const creditSide = document.getElementById('creditSide');
-    const customSide = document.getElementById('customSide');
     const createProjectBtn = document.getElementById('createProjectBtn');
     const modal = document.getElementById('createProjectModal');
     const closeBtn = document.querySelector('.close-btn');
@@ -19,34 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const newTaskForm = document.getElementById('newTaskForm');
     const addTaskButton = document.getElementById('addTaskButton');
     const tasklist = document.getElementById('tasklist').querySelector('tbody');
-
-    permitSide.addEventListener('click', () => {
-        permitSide.classList.add('active');
-        projectSide.classList.remove('active');
-        creditSide.classList.remove('active');
-        customSide.classList.remove('active');
-    });
-
-    projectSide.addEventListener('click', () => {
-        projectSide.classList.add('active');
-        permitSide.classList.remove('active');
-        creditSide.classList.remove('active');
-        customSide.classList.remove('active');
-    });
-
-    creditSide.addEventListener('click', () => {
-        creditSide.classList.add('active');
-        projectSide.classList.remove('active');
-        permitSide.classList.remove('active');
-        customSide.classList.remove('active');
-    });
-
-    customSide.addEventListener('click', () => {
-        customSide.classList.add('active');
-        projectSide.classList.remove('active');
-        creditSide.classList.remove('active');
-        permitSide.classList.remove('active');
-    });
 
     function showNewMemberForm() {
     document.getElementById('newMemberForm').classList.remove('hidden');
@@ -212,4 +180,5 @@ function hideNewMemberForm() {
 
         
     });
+    
 });
