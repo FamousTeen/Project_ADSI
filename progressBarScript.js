@@ -1,62 +1,71 @@
-let projects = {
-    'Project 1': { totalPercentage: 0, tasks: [] },
-    'Project 2': { totalPercentage: 0, tasks: [] },
-    'Project 3': { totalPercentage: 0, tasks: [] }
-};
-let currentProject = '';
-
-function switchProject() {
-    const projectSelect = document.getElementById('project-select');
-    currentProject = projectSelect.value;
-
-    if (currentProject) {
-        updateUI();
-        document.getElementById('task-form').style.display = 'block';
-    } else {
-        document.getElementById('task-form').style.display = 'none';
-    }
-}
-
-function updateUI() {
-    let progressBar = document.getElementById('progress-bar');
-    progressBar.style.width = projects[currentProject].totalPercentage + '%';
-
-    let taskContainer = document.getElementById('task-container');
-    taskContainer.innerHTML = '';
-    projects[currentProject].tasks.forEach(task => {
-        let taskElement = document.createElement('div');
-        taskElement.className = 'task';
-        taskElement.innerHTML = `
-            <h3>${task.task}</h3>
-            <p>${task.description}</p>
-            <p><strong>Deadline:</strong> ${task.deadline}</p>
-            <p><strong>Percentage:</strong> ${task.percentage}%</p>
-        `;
-        taskContainer.prepend(taskElement);
+$(document).ready(function() {
+    // Event handlers for sidebar navigation
+    $("#permitSide").on("click", function() {
+        activateSidebar(this);
     });
-}
 
-function addTask() {
-    let task = document.getElementById('task').value;
-    let description = document.getElementById('description').value;
-    let deadline = document.getElementById('deadline').value;
-    let percentage = parseInt(document.getElementById('percentage').value);
+    $("#projectSide").on("click", function() {
+        activateSidebar(this);
+    });
 
-    // Update the total percentage for the current project
-    projects[currentProject].totalPercentage += percentage;
-    if (projects[currentProject].totalPercentage > 100) {
-        projects[currentProject].totalPercentage = 100; // Cap the total percentage at 100%
+    $("#creditSide").on("click", function() {
+        activateSidebar(this);
+    });
+
+    $("#customSide").on("click", function() {
+        activateSidebar(this);
+    });
+
+    // Function to activate the sidebar menu item
+    function activateSidebar(element) {
+        $(".sidebar ul li").removeClass("active");
+        $(element).addClass("active");
     }
 
-    // Add the task to the current project
-    projects[currentProject].tasks.push({ task, description, deadline, percentage });
+    // Event handler for project selection
+    $("#project-select").change(function() {
+        var selectedProjectId = $(this).val();
+        $("#idProject_task").val(selectedProjectId);
+        displayTasks(selectedProjectId);
+    });
 
-    // Update the UI to reflect the new state
-    updateUI();
+    // Function to display tasks for the selected project
+    function displayTasks(projectId) {
+        var tasks = window['tasks_' + projectId] || [];
+        $("#task-container").empty();
+        tasks.forEach(function(task) {
+            var taskCard = `
+                <div class="class-card">
+                    <p><strong>Task Name:</strong> ${task.taskName}</p>
+                    <p><strong>Task Description:</strong> ${task.taskDescription}</p>
+                    <p><strong>Deadline:</strong> ${task.taskDeadline}</p>
+                    <p><strong>Progress:</strong> ${task.progressTask}%</p>
+                </div>`;
+            $("#task-container").append(taskCard);
+        });
+    }
 
-    // Clear form fields
-    document.getElementById('task').value = '';
-    document.getElementById('description').value = '';
-    document.getElementById('deadline').value = '';
-    document.getElementById('percentage').value = '';
-}
+    // Function to handle adding a task
+    window.addTask = function(event) {
+        event.preventDefault();
+        var task = $("#task").val();
+        var description = $("#description").val();
+        var taskDeadline = $("#taskDeadline").val();
+        var progressTask = $("#progressTask").val();
+        var idProject_task = $("#idProject_task").val();
+
+        if (task && taskDeadline && progressTask && idProject_task) {
+            var taskCard = `
+                <div class="class-card">
+                    <p><strong>Task Name:</strong> ${task}</p>
+                    <p><strong>Task Description:</strong> ${description}</p>
+                    <p><strong>Deadline:</strong> ${taskDeadline}</p>
+                    <p><strong>Progress:</strong> ${progressTask}%</p>
+                </div>`;
+            $("#task-container").append(taskCard);
+            $("#task-form form")[0].reset();
+        } else {
+            alert("Please fill in all required fields.");
+        }
+    };
+});

@@ -4,26 +4,29 @@ include("db_connect.php");
 session_start();
 $dept_name = $_SESSION['dept_name'];
 
-$sql = "SELECT * FROM manager WHERE departmentName ='$dept_name'";
-$result = mysqli_query($mysqli, $sql);
+// Fetch manager details
+$sql = "SELECT * FROM manager WHERE departmentName = ?";
+$stmt = $mysqli->prepare($sql);
+$stmt->bind_param("s", $dept_name);
+$stmt->execute();
+$result = $stmt->get_result();
 
-if (mysqli_num_rows($result) == 1) {
-  $row = mysqli_fetch_assoc($result);
-
+if ($result->num_rows == 1) {
+  $row = $result->fetch_assoc();
   $_SESSION['manager_name'] = $row['managerName'];
 }
 
+// Fetch permit details
 $idEmp = $_SESSION['idEmp'];
-$sql = "SELECT * FROM permit WHERE emp = $idEmp";
-$result = mysqli_query($mysqli, $sql);
+$sql = "SELECT * FROM permit WHERE emp = ?";
+$stmt = $mysqli->prepare($sql);
+$stmt->bind_param("i", $idEmp);
+$stmt->execute();
+$result = $stmt->get_result();
 
 $data = array();
 
-$index = 0;
-$permitIndex = 0;
-
-foreach ($result as $row) {
-    $permitIndex +=1;
+while ($row = $result->fetch_assoc()) {
     $data[] = array(
         'title' => $row['permitTitle'],
         'desc' => $row['description'],
@@ -32,7 +35,22 @@ foreach ($result as $row) {
     );
 }
 
+// Fetch project details
+$sql = "SELECT idProject, projectName FROM project";
+$result = $mysqli->query($sql);
+$row2 = mysqli_fetch_assoc($result);
+$idProject2 = $row2['idProject'];
+$projects = array();
+while ($row = $result->fetch_assoc()) {
+    $projects[] = $row;
+}
+
+$sql = "SELECT * FROM task WHERE idProject_task = $idProject2";
+$result2 = $mysqli->query($sql);
+$projects2 = array();
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,6 +59,7 @@ foreach ($result as $row) {
     <title>Google Classroom UI</title>
     <link rel="stylesheet" href="progressBar.css">
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+
 </head>
 <body>
     <header>
@@ -60,47 +79,62 @@ foreach ($result as $row) {
                 <a style="text-decoration: none; color: inherit;" href="creditScore.php"><li id="creditSide">Credit score & awards</li></a>
             </ul>
         </aside>
-        <main class="main-content">
+        <main class="main-content" id="main-content">
 
         <div class="progress-bar-container">
-        <div class="progress-bar background" id="background-progress"></div>
-        <div class="progress-bar approved" id="approved-progress" style="width: 0%;"></div>
-        <div class="progress-bar not-approved" id="not-approved-progress" style="width: 0%;"></div>
+            <div class="progress-bar background" id="background-progress"></div>
+            <div class="progress-bar approved" id="approved-progress" style="width: 0%;"></div>
+            <div class="progress-bar not-approved" id="not-approved-progress" style="width: 0%;"></div>
+        </div>
+
+        <div class="project-selection">
+            <label for="project-select">Select Project:</label>
+            <select id="project-select" onchange="switchProject()">
+                <option value="">--Select Project--</option>
+                <?php 
+                include("db_connect.php");
+                $result = mysqli_query($mysqli, "SELECT idProject, projectName FROM project");
+                while ($row = mysqli_fetch_assoc($result)): ?>
+                    <option value="<?php echo $row['idProject']; ?>"><?php echo $row['projectName']; ?></option>
+                <?php endwhile; ?>
+            </select>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+
+        <div class="task-form" id="task-form">
+            <h2>Add Task</h2>
+            <form id="addTaskForm" method="POST" action="addTask.php">
+                <label for="task">Task:</label>
+                <input type="text" id="task" name="taskName" required>
+                
+
+                <label for="description">Description:</label>
+                <textarea id="description" name="taskDescription"></textarea>
+
+                <label for="taskDeadline">Deadline:</label>
+                <input type="date" id="taskDeadline" name="taskDeadline" required>
+
+                <label for="progressTask">Progress:</label>
+                <input type="number" id="progressTask" name="progressTask" min="0" max="100" required>
+
+                <input type="hidden" id="idProject_task" name="idProject_task" value="">
+
+                <button type="submit" name="addtask">Add Task</button>
+            </form>
+        </div>
+
+        </main>
     </div>
+</body>
+</html>
 
-    <div class="project-selection">
-        <label for="project-select">Select Project:</label>
-        <select id="project-select" onchange="switchProject()">
-            <option value="">--Select Project--</option>
-            <option value="Project 1">Project 1</option>
-            <option value="Project 2">Project 2</option>
-            <option value="Project 3">Project 3</option>
-        </select>
-    </div>
 
-    <div class="progress-container">
-        <div class="progress-bar" id="progress-bar"></div>
-    </div>
 
-    <div class="task-form" style="display:none;" id="task-form">
-        <h2>Add Task</h2>
-        <form action="progressBar_query.php" method="POST"></form>
-        <label for="task">Task:</label>
-        <input type="text" id="task" name="task">
-
-        <label for="description">Description:</label>
-        <textarea id="description" name="description"></textarea>
-
-        <label for="deadline">Deadline:</label>
-        <input type="date" id="deadline" name="deadline">
-
-        <label for="percentage">Percentage:</label>
-        <input type="number" id="percentage" name="percentage" min="0" max="100">
-
-        <input type="hidden" id="idProject" name="idProject">
-
-        <button type="submit" name="addtask" onclick="addTask()">Add Task</button>
-    </div>
+</body>
+</html>
 
     <div id="task-container"></div>
     <script src="progressBarScript.js"></script>
@@ -379,6 +413,33 @@ form select {
 </style>
 
 <script>
+         <?php 
+            $permitIndex = 0;
+            foreach ($result2 as $row) {
+                $projects2[$permitIndex] = array(
+                'taskName' => $row['taskName'],
+                'taskDescription' => $row['taskDescription'],
+                'taskDeadline' => $row['taskDeadline'],
+                'progressTask' => $row['progressTask']
+                );
+            ?> 
+            var mainContent = document.getElementById('main-content');
+            var permitCard = document.createElement('div');
+            permitCard.classList.add('class-card');
+            permitCard.innerHTML += 
+                `<p><strong>Task Name:</strong><?php echo $projects2[$permitIndex]['taskName'] ?></p>
+                        <p><strong>Task Description:</strong><?php echo $projects2[$permitIndex]['taskDescription']?></p>
+                        <p><strong>Deadline:</strong> <?php echo $projects2[$permitIndex]['taskDeadline']?></p>
+                        <p><strong>Progress:</strong> <?php echo $projects2[$permitIndex]['progressTask']?>%</p>
+            `;
+            mainContent.appendChild(permitCard);
+        <?php  $permitIndex +=1; };  ?>
+
+
+        function switchProject() {
+            var selectedProjectId = document.getElementById('project-select').value;
+            document.getElementById('idProject_task').value = selectedProjectId;
+        }
     $( "#permitSide" ).on( "click", function() {
         $( "#permitSide" ).toggleClass("active", true);
         $( "#projectSide" ).toggleClass("active", false);
