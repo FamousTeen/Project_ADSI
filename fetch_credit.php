@@ -1,20 +1,10 @@
 <?php
 include("db_connect.php");
+include("creditClass.php");
 
-// Fetch employees' names and credit scores from the database
-$sql = "SELECT empName, credit_score FROM Employee";
-$result = $mysqli->query($sql);
+$employeeManager = new EmployeeManager($mysqli);
 
-$data = array();
-
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $data[] = array(
-            'empName' => $row['empName'],
-            'credit_score' => $row['credit_score']
-        );
-    }
-}
+$data = $employeeManager->fetchEmployees();
 
 echo json_encode($data);
 

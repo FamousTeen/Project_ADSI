@@ -2,6 +2,7 @@
 session_start(); // Start session
 
 include 'db_connect.php'; // Include database connection file
+include 'creditClass.php';
 
 // Check if the user is logged in and their role is manager
 if (isset($_SESSION['name']) && $_SESSION['role'] == 'manager') {
@@ -21,201 +22,200 @@ if (isset($_SESSION['name']) && $_SESSION['role'] == 'manager') {
     <link rel="stylesheet" href="create_style.css">
     <script src="https://code.jquery.com/jquery-3.7.1.js"
         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-        <style>
-    /* General styles */
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f4;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-    }
+    <style>
+        /* General styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
 
-    header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background-color: #0073e6;
-        padding: 10px 20px;
-        color: #fff;
-    }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #0073e6;
+            padding: 10px 20px;
+            color: #fff;
+        }
 
-    header .header-left h1 {
-        margin: 0;
-    }
+        header .header-left h1 {
+            margin: 0;
+        }
 
-    header .header-right button {
-        padding: 5px 10px;
-        background-color: white;
-        color: #4285F4;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        margin-left: 10px;
-    }
+        header .header-right button {
+            padding: 5px 10px;
+            background-color: white;
+            color: #4285F4;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
 
-    .container {
-        display: flex;
-        flex: 1;
-    }
+        .container {
+            display: flex;
+            flex: 1;
+        }
 
-    .sidebar {
-        width: 250px;
-        background-color: #3c4043;
-        color: white;
-        padding: 20px;
-        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-    }
+        .sidebar {
+            width: 250px;
+            background-color: #3c4043;
+            color: white;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
 
-    .sidebar ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        width: 100%;
-    }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
 
-    .sidebar ul a {
-        text-decoration: none;
-        color: inherit;
-    }
+        .sidebar ul a {
+            text-decoration: none;
+            color: inherit;
+        }
 
-    .sidebar ul li {
-        padding: 15px;
-        cursor: pointer;
-        border-radius: 4px;
-        margin-bottom: 10px;
-        transition: background-color 0.3s ease;
-    }
+        .sidebar ul li {
+            padding: 15px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s ease;
+        }
 
-    .sidebar ul li.active {
-        background-color: #5f6368;
-    }
+        .sidebar ul li.active {
+            background-color: #5f6368;
+        }
 
-    .main-content {
-        flex: 1;
-        padding: 20px;
-        background-color: #fff;
-        margin: 20px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-    }
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background-color: #fff;
+            margin: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
 
-    h2 {
-        text-align: center;
-        color: #333;
-    }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
 
-    .result {
-        margin-top: 20px;
-        padding: 10px;
-        background-color: #e9ecef;
-        border-radius: 4px;
-    }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
 
-    .employee-list {
-        margin-top: 20px;
-    }
+        .employee-list {
+            margin-top: 20px;
+        }
 
-    .employee-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
+        .employee-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-    .employee-table th,
-    .employee-table td {
-        padding: 10px;
-        border: 1px solid #ddd;
-        text-align: left;
-    }
+        .employee-table th,
+        .employee-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
 
-    .employee-table th {
-        background-color: #f4f4f4;
-    }
+        .employee-table th {
+            background-color: #f4f4f4;
+        }
 
-    /* Credit score styles */
-    .excellent {
-        background-color: #d4edda;
-    }
+        /* Credit score styles */
+        .excellent {
+            background-color: #d4edda;
+        }
 
-    .good {
-        background-color: #c3e6cb;
-    }
+        .good {
+            background-color: #c3e6cb;
+        }
 
-    .average {
-        background-color: #ffeeba;
-    }
+        .average {
+            background-color: #ffeeba;
+        }
 
-    .below-average {
-        background-color: #f8d7da;
-    }
+        .below-average {
+            background-color: #f8d7da;
+        }
 
-    .poor {
-        background-color: #f5c6cb;
-    }
+        .poor {
+            background-color: #f5c6cb;
+        }
 
-    /* Popup styles */
-    .popup {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: #fff;
-        padding: 20px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-        z-index: 1000;
-    }
+        /* Popup styles */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            z-index: 1000;
+        }
 
-    .popup input {
-        width: calc(100% - 20px);
-        padding: 10px;
-        margin-bottom: 20px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-    }
+        .popup input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
 
-    .popup button {
-        width: calc(50% - 10px);
-        padding: 10px;
-        margin: 0 5px;
-        border-radius: 4px;
-        cursor: pointer;
-    }
+        .popup button {
+            width: calc(50% - 10px);
+            padding: 10px;
+            margin: 0 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
 
-    .popup .save-button {
-        background-color: #28a745;
-        color: #fff;
-        border: none;
-    }
+        .popup .save-button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+        }
 
-    .popup .cancel-button {
-        background-color: #dc3545;
-        color: #fff;
-        border: none;
-    }
+        .popup .cancel-button {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+        }
 
-    .popup button:hover {
-        opacity: 0.9;
-    }
+        .popup button:hover {
+            opacity: 0.9;
+        }
 
-    /* Overlay styles */
-    .overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-    }
+        /* Overlay styles */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
     </style>
-
 </head>
 
 <body>
@@ -232,17 +232,16 @@ if (isset($_SESSION['name']) && $_SESSION['role'] == 'manager') {
         <aside class="sidebar">
             <!-- Sidebar content -->
             <ul>
-                <a style="text-decoration: none; color: inherit;" href="createProject_page.php"><li id="permitSide" >My Projects</li></a>
-                <a style="text-decoration: none; color: inherit;" href="createPermitReq.php"><li id="permitSide" >Permit Request</li></a>
-                <a style="text-decoration: none; color: inherit;" href="progressBar.php"><li id="customSide" >Custom Project Progress</li></a>
+                <a style="text-decoration: none; color: inherit;" href="createProject_page.php"><li id="permitSide">My Projects</li></a>
+                <a style="text-decoration: none; color: inherit;" href="createPermitReq.php"><li id="permitSide">Permit Request</li></a>
+                <a style="text-decoration: none; color: inherit;" href="progressBar.php"><li id="customSide">Custom Project Progress</li></a>
                 <a style="text-decoration: none; color: inherit;" href="#"><li id="creditSide" class="active">Credit score & awards</li></a>
             </ul>
         </aside>
         <main class="main-content">
             <div class="content-wrapper">
                 <h2>Employee Credit Score & Performance Rewards</h2>
-                <div id="result" class="result
-                " style="display: none;"></div>
+                <div id="result" class="result" style="display: none;"></div>
                 <div class="employee-list">
                     <h3>Employee Reward Status</h3>
                     <table class="employee-table" id="employeeTable">
