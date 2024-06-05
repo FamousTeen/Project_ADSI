@@ -231,6 +231,9 @@ $project_employees_json = json_encode($project_employees);
                 <label for="taskDescription">Task Description:</label>
                 <input type="text" id="taskDescription" name="taskDescription" required>
 
+                <label for="taskDeadline">Project Deadline:</label>
+                <input type="date" id="taskDeadline" name="taskDeadline" required>
+
                 <label for="progressTask">Progress:</label>
                 <input type="number" id="progressTask" name="progressTask" min="0" max="100" required>
 

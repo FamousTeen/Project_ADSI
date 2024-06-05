@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Jun 03, 2024 at 11:59 AM
+-- Host: localhost
+-- Generation Time: Jun 04, 2024 at 03:45 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -71,6 +71,13 @@ CREATE TABLE `employeeproject` (
   `idEmp` int(11) NOT NULL,
   `idProject` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `employeeproject`
+--
+
+INSERT INTO `employeeproject` (`idEmp`, `idProject`) VALUES
+(4, 1);
 
 -- --------------------------------------------------------
 
@@ -149,6 +156,17 @@ CREATE TABLE `project` (
   `status` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `project`
+--
+
+INSERT INTO `project` (`idProject`, `startDate`, `Deadline`, `projectName`, `progressBar`, `man`, `status`) VALUES
+(1, '2024-06-04', '2024-06-07', 'snaker', 10, 1, 'Not done'),
+(2, '2024-06-04', '2024-06-14', 'snaker', 0, 1, 'Not done'),
+(3, '2024-06-04', '2024-06-06', 'snaker', 0, 1, 'Not done'),
+(4, '2024-06-04', '2024-06-06', 'Snaker', 0, 1, 'Not done'),
+(5, '2024-06-04', '2024-06-07', 'snaker', 0, 1, 'Not done');
+
 -- --------------------------------------------------------
 
 --
@@ -159,9 +177,17 @@ CREATE TABLE `task` (
   `idTask` int(11) NOT NULL,
   `taskName` varchar(255) NOT NULL,
   `taskDescription` varchar(255) NOT NULL,
+  `taskDeadline` date NOT NULL,
   `progressTask` int(11) NOT NULL,
-  `idProject` int(11) NOT NULL
+  `idProject_task` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `task`
+--
+
+INSERT INTO `task` (`idTask`, `taskName`, `taskDescription`, `taskDeadline`, `progressTask`, `idProject_task`) VALUES
+(1, 'punch', 'punch', '0000-00-00', 10, 1);
 
 --
 -- Indexes for dumped tables
@@ -220,7 +246,7 @@ ALTER TABLE `project`
 --
 ALTER TABLE `task`
   ADD PRIMARY KEY (`idTask`),
-  ADD KEY `task_idproject_fk` (`idProject`);
+  ADD KEY `task_idproject_fk` (`idProject_task`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -260,13 +286,13 @@ ALTER TABLE `permit`
 -- AUTO_INCREMENT for table `project`
 --
 ALTER TABLE `project`
-  MODIFY `idProject` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idProject` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `task`
 --
 ALTER TABLE `task`
-  MODIFY `idTask` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idTask` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints for dumped tables
@@ -303,7 +329,7 @@ ALTER TABLE `project`
 -- Constraints for table `task`
 --
 ALTER TABLE `task`
-  ADD CONSTRAINT `task_idproject_fk` FOREIGN KEY (`idProject`) REFERENCES `project` (`idProject`);
+  ADD CONSTRAINT `task_idproject_fk` FOREIGN KEY (`idProject_task`) REFERENCES `project` (`idProject`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
