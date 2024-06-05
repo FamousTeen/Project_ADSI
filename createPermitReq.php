@@ -1,7 +1,14 @@
 <?php 
 include("db_connect.php");
+include("addPermit.php");
 
-session_start();
+$permit;  
+if (isset($_POST['Send'])) {
+    $permit = new Permit(null, $_POST['permitTitle'], $_POST['permitDesc'], $_POST['permitDate'], null, null, "Unapprove");
+    $permit->createPermit();
+    $permit->sendNotif();
+}
+
 $dept_name = $_SESSION['dept_name'];
 
 $sql = "SELECT * FROM manager WHERE departmentName ='$dept_name'";
@@ -34,7 +41,7 @@ $data = array();
             <h1>DivRoom</h1>
         </div>
         <div class="header-right">
-            <button id="createProjectBtn">Request New Permit</button>
+            <button id="createPermitBtn">Request New Permit</button>
         </div>
     </header>
     <div class="container">
@@ -60,7 +67,7 @@ $data = array();
                 Tanggal yang anda masukkan sudah terlewat
             </div>
             <p>Manager name: <?php echo $_SESSION['manager_name']?></p>
-            <form action="addPermit.php" id="createProjectForm" method="POST">
+            <form action="createPermitReq.php" id="createProjectForm" method="POST">
                 <label for="permitTitle">Permit Title:</label>
                 <input style="width: 97%;" type="text" id="permitTitle" name="permitTitle" >
                 
@@ -376,16 +383,11 @@ form select {
     } );
 
     document.addEventListener('DOMContentLoaded', () => {
-    const createProjectBtn = document.getElementById('createProjectBtn');
+    const createPermitBtn = document.getElementById('createPermitBtn');
     const modal = document.getElementById('createProjectModal');
     const closeBtn = document.querySelector('.close-btn');
     const createProjectForm = document.getElementById('createProjectForm');
     const mainContent = document.querySelector('.main-content');
-
-
-    createProjectBtn.onclick = () => {
-        modal.style.display = 'block';
-    }
 
     closeBtn.onclick = () => {
         modal.style.display = 'none';
@@ -398,7 +400,20 @@ form select {
             newTaskForm.classList.add('hidden'); // Close the add task form when clicking outside the modal
         }
     }
+
+    createPermitBtn.addEventListener("click", openPermitForm);
+
+    function openPermitForm() {
+        modal.style.display = 'block';
+    }
+
     $('#permitDate').change(function() {
+        $('.alert').css("display", "none");
+        $('#saveProjectButton').prop('disabled', false);
+        $('#saveProjectButton').css('background-color', "#4285F4");
+    })
+
+    $('#saveProjectButton').on('click', function() {
         const permitDate = document.getElementById('permitDate').value;
     
         const currentDate = new Date().setHours(0, 0, 0, 0);
@@ -410,10 +425,6 @@ form select {
                 $('#saveProjectButton').prop('disabled', true);
                 $('#saveProjectButton').css('background-color', "grey");
                 return; // Exit the function if the deadline is before the current date
-            } else {
-                $('.alert').css("display", "none");
-                $('#saveProjectButton').prop('disabled', false);
-                $('#saveProjectButton').css('background-color', "#4285F4");
             }
         }
     });

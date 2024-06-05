@@ -1,18 +1,11 @@
 <?php
-session_start();
 include('db_connect.php');
+include('addPermit.php');
 
-$result2 = null;
-if (isset($_SESSION['idMan'])) {
-    $idMan = $_SESSION['idMan'];
+$idMan = $_SESSION['idMan'];
+$permit = new Permit(null, null, null, null, null, null, "Unapprove");
 
-    $sql = "SELECT * FROM permit WHERE man = $idMan";
-    $result2 = mysqli_query($mysqli, $sql);
-
-    $data = array();
-}
-
-$data = array();
+list($data, $result2) = $permit->sendNotif();
 
 $query = "SELECT * FROM project";
 $result = mysqli_query($mysqli, $query);

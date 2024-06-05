@@ -12,7 +12,7 @@ if (isset($_POST["submit"])) {
 
     // Fetching idManager from the session (assuming it's stored during login)
     if (isset($_SESSION['idManager'])) {
-        $idManager = (int)$_SESSION['idManager']; // Ensuring idManager is treated as an integer
+        $idManager = (int)$_SESSION['idMan']; // Ensuring idManager is treated as an integer
     } else {
         echo "<script>alert('Error: Manager ID not found in session.');</script>";
         exit();
@@ -53,5 +53,4 @@ if (isset($_POST["submit"])) {
 } else {
     // alert "<script>alert('Wrong');</script>";
 }
-?>
 
