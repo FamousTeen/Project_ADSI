@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const addTaskButton = document.getElementById('addTaskButton');
     const tasklist = document.getElementById('tasklist').querySelector('tbody');
 
+
     function showNewMemberForm() {
     document.getElementById('newMemberForm').classList.remove('hidden');
     // Set the required attribute dynamically when showing the form
@@ -177,8 +178,17 @@ function hideNewMemberForm() {
         } else {
             alert('Please fill in all required fields');
         }
-
-        
     });
+    function validateForm() {
+        var inputDate = document.getElementById("projectDeadline").value;
+        var isValidDate = /^\d{4}-\d{2}-\d{2}$/.test(inputDate);
+        
+        if (!isValidDate) {
+            alert("Invalid date format. Please use YYYY-MM-DD format.");
+            return false; // Prevent form submission
+        }
+        return true; // Continue with form submission
+    }
     
 });
+

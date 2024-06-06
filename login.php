@@ -18,7 +18,7 @@ if (isset($_POST["Login"])) {
 
             // Start a session
             session_start();
-            $_SESSION['idMan'] = $row['idManager'];
+            $_SESSION['idManager'] = $row['idManager'];
             $_SESSION['password'] = $row['password'];
             $_SESSION['name'] = $row['managerName'];
             $_SESSION['dept_name'] = $row['departmentName'];
@@ -44,6 +44,7 @@ if (isset($_POST["Login"])) {
 
             // Start a session
             session_start();
+            $_SESSION['idManager'] = null;
             $_SESSION['idEmp'] = $row['idEmp'];
             $_SESSION['password'] = $row['password'];
             $_SESSION['name'] = $row['empName'];

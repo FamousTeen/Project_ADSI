@@ -1,75 +1,37 @@
 <?php
 include("db_connect.php");
-session_start();
 
-$response = array();
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $task = $_POST['task'];
+    $description = $_POST['description'];
+    $deadline = $_POST['deadline'];
+    $percentage = $_POST['percentage'];
+    $projectId = $_POST['projectId'];
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $action = $_POST['action'];
+    // Insert the new task into the database
+    $stmt = $mysqli->prepare("INSERT INTO task (taskName, taskDescription, taskDeadline, progressTask, idProject_task) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssii", $task, $description, $deadline, $percentage, $projectId);
 
-    switch ($action) {
-        case 'getManagerDetails':
-            $dept_name = $_SESSION['dept_name'];
-            $sql = "SELECT * FROM manager WHERE departmentName = ?";
-            $stmt = $mysqli->prepare($sql);
-            $stmt->bind_param("s", $dept_name);
-            $stmt->execute();
-            $result = $stmt->get_result();
+    if ($stmt->execute()) {
+        // Get the current progress of the project from the database
+        $stmt = $mysqli->prepare("SELECT progressBar FROM project WHERE idProject = ?");
+        $stmt->bind_param("i", $projectId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        $currentProgress = $row['progressBar'];
 
-            if ($result->num_rows == 1) {
-                $row = $result->fetch_assoc();
-                $_SESSION['manager_name'] = $row['managerName'];
-                $response['manager_name'] = $row['managerName'];
-            }
-            break;
+        // Calculate the new progress by adding the new task's percentage to the current progress
+        $newProgress = $currentProgress + $percentage;
 
-        case 'getPermitDetails':
-            $idEmp = $_SESSION['idEmp'];
-            $sql = "SELECT * FROM permit WHERE emp = ?";
-            $stmt = $mysqli->prepare($sql);
-            $stmt->bind_param("i", $idEmp);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $data = array();
+        // Update the project's progress in the database
+        $stmt = $mysqli->prepare("UPDATE project SET progressBar = ? WHERE idProject = ?");
+        $stmt->bind_param("di", $newProgress, $projectId);
+        $stmt->execute();
 
-            while ($row = $result->fetch_assoc()) {
-                $data[] = array(
-                    'title' => $row['permitTitle'],
-                    'desc' => $row['description'],
-                    'date' => $row['permitDate'],
-                    'status' => $row['status']
-                );
-            }
-            $response['permits'] = $data;
-            break;
-
-        case 'getProjectDetails':
-            $sql = "SELECT idProject, projectName FROM project";
-            $result = $mysqli->query($sql);
-            $projects = array();
-
-            while ($row = $result->fetch_assoc()) {
-                $projects[] = $row;
-            }
-            $response['projects'] = $projects;
-            break;
-
-        case 'getTasks':
-            $idProject2 = $_POST['idProject'];
-            $sql = "SELECT * FROM task WHERE idProject_task = ?";
-            $stmt = $mysqli->prepare($sql);
-            $stmt->bind_param("i", $idProject2);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $tasks = array();
-
-            while ($row = $result->fetch_assoc()) {
-                $tasks[] = $row;
-            }
-            $response['tasks'] = $tasks;
-            break;
+        echo json_encode(['success' => true, 'newProgress' => $newProgress]);
+    } else {
+        echo json_encode(['success' => false]);
     }
 }
-
-echo json_encode($response);
-
+?>

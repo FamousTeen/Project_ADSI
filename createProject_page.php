@@ -1,6 +1,26 @@
 <?php
 include('db_connect.php');
+include('project_class.php');
+include('task_class.php');
+include('employeeProject_class.php');
 include('addPermit.php');
+
+if (isset($_POST['submit'])) {
+    $project = new Project(null, $_POST['projectName'], null, $_POST['$projectDeadline'], $_POST['projectName'], null, $status);
+    $project->createProject($startDate, $projectDeadline, $projectName, $progressBar);
+    
+}
+
+if (isset($_POST['addEmployee'])) {
+    $employeeproject = new employeeProject(null,null);
+    $employeeproject->addEmployeeProject($idEmp,$idProject);
+}
+
+if (isset($_POST['addTask'])) {
+    $task = new Task(null,$_POST['taskName'], $_POST['taskDescription'], $_POST['taskDeadline'], $_POST['progressTask'], null);
+    $task->addTask($taskName, $taskDescription, $taskDeadline, $progressTask, $idProject_task);
+}
+
 
 $idMan = $_SESSION['idMan'];
 $permit = new Permit(null, null, null, null, null, null, "Unapprove");
@@ -12,6 +32,12 @@ $result = mysqli_query($mysqli, $query);
 
 $projects = array();
 while ($row = mysqli_fetch_assoc($result)) {
+    if ($row['progressBar'] == 100) {
+        // Update project status to "Done" in the database
+        $updateSql = "UPDATE project SET status = 'Done' WHERE idProject = " . $row['idProject'];
+        mysqli_query($mysqli, $updateSql);
+    }
+
     $projects[] = $row;
 }
 
@@ -44,6 +70,7 @@ foreach ($projects as $project) {
 $projects_json = json_encode($projects);
 $project_employees_json = json_encode($project_employees);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -137,10 +164,14 @@ $project_employees_json = json_encode($project_employees);
     <div class="container">
         <aside class="sidebar">
             <ul>
-                <a style="text-decoration: none; color: inherit;" href="#"><li id="permitSide" class="active">My Projects</li></a>
-                <a style="text-decoration: none; color: inherit;" href="createPermitReq.php"><li id="permitSide" >Permit Request</li></a>
-                <a style="text-decoration: none; color: inherit;" href="progressBar.php"><li id="customSide">Custom Project Progress</li></a>
-                <a style="text-decoration: none; color: inherit;" href="creditScore.php"><li id="creditSide">Credit score & awards</li></a>
+                 <?php if (isset($_SESSION['idManager'])) { ?>
+                    <a style="text-decoration: none; color: inherit;" href="createProject_page.php"><li id="permitSide" class="active">My Projects</li></a>
+                    <a style="text-decoration: none; color: inherit;" href="progressBar.php"><li id="customSide">Custom Project Progress</li></a>
+                    <a style="text-decoration: none; color: inherit;" href="creditScore.php"><li id="creditSide">Credit score & awards</li></a>
+                <?php } else { ?>
+                    <a style="text-decoration: none; color: inherit;" href="createProject_page.php"><li id="permitSide" class="active">My Projects</li></a>
+                    <a style="text-decoration: none; color: inherit;" href="createPermitReq.php"><li id="permitSide">Permit Request</li></a>           
+                <?php }?>
             </ul>
         </aside>
         <main class="main-content">
@@ -148,24 +179,23 @@ $project_employees_json = json_encode($project_employees);
         </main>
     </div>
 
-    <!-- Create Project Modal -->
-    <div id="createProjectModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h2>Create New Project</h2>
-            <form id="createProjectForm" method="POST" action="create_project.php">
-                <label for="projectName">Project Name:</label>
-                <input type="text" id="projectName" name="projectName" required>
-                
-                <label for="projectDeadline">Project Deadline:</label>
-                <input type="date" id="projectDeadline" name="projectDeadline" required>
+    
+<!-- Create Project Modal -->
+<div id="createProjectModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>Create New Project</h2>
+        <form id="createProjectForm" method="POST" action="createProject_page.php" onsubmit="return validateForm()">
+            <label for="projectName">Project Name:</label>
+            <input type="text" id="projectName" name="projectName" required>
+            
+            <label for="projectDeadline">Project Deadline:</label>
+            <input type="date" id="projectDeadline" name="projectDeadline" required>
 
-                
-
-                <button type="submit" name="submit" id="saveProjectButton">Create Project</button>
-            </form>
-        </div>
+            <button type="submit" name="submit" id="saveProjectButton">Create Project</button>
+        </form>
     </div>
+</div>
 
     <!-- Create Notif Modal -->
 
@@ -201,7 +231,7 @@ $project_employees_json = json_encode($project_employees);
         <div class="modal-content">
             <span class="close-btn">&times;</span>
             <h2>Add Employee to Project</h2>
-            <form id="addEmployeeForm" method="POST" action="add_employee.php">
+            <form id="addEmployeeForm" method="POST" action="createProject_page.php">
                 <label for="employeeSelect">Select Employee:</label>
                 <select id="employeeSelect" name="employeeId" required>
                     <!-- Employee options will be added here dynamically -->
@@ -217,15 +247,15 @@ $project_employees_json = json_encode($project_employees);
         <div class="modal-content">
             <span class="close-btn">&times;</span>
             <h2>Add Task to Project</h2>
-            <form id="addTaskForm" method="POST" action="add_task.php">
+            <form id="addTaskForm" method="POST" action="createProject_page.php" onsubmit="return validateTaskForm()" >
                 <label for="taskName">Task Name:</label>
                 <input type="text" id="taskName" name="taskName" required>
                 
                 <label for="taskDescription">Task Description:</label>
                 <input type="text" id="taskDescription" name="taskDescription" required>
 
-                <label for="taskDeadline">Project Deadline:</label>
-                <input type="date" id="taskDeadline" name="taskDeadline" required>
+                <label for="taskDeadline">Task Deadline:</label>
+<input type="date" id="taskDeadline" name="taskDeadline" required>
 
                 <label for="progressTask">Progress:</label>
                 <input type="number" id="progressTask" name="progressTask" min="0" max="100" required>
@@ -262,6 +292,80 @@ $project_employees_json = json_encode($project_employees);
     const projectIdInput = document.getElementById('projectId');
     const taskIdProjectInput = document.getElementById('taskIdProject');
     const viewDetailsModal = document.getElementById('viewDetailsModal');
+    
+    
+    function validateForm() {
+            const projectName = document.getElementById('projectName').value;
+            const projectDeadline = document.getElementById('projectDeadline').value;
+
+            if (projectName.trim() === '') {
+                alert('Please enter a project name.');
+                return false;
+            }
+
+            if (projectDeadline === '') {
+                alert('Please select a project deadline.');
+                return false;
+            }
+
+            return true;
+        }
+
+        function validateTaskForm() {
+            const taskName = document.getElementById('taskName').value;
+            const taskDescription = document.getElementById('taskDescription').value;
+            const taskDeadline = document.getElementById('taskDeadline').value;
+            const projectDeadline = document.getElementById('projectDeadline').value;
+
+            if (taskName.trim() === '') {
+                alert('Please enter a task name.');
+                return false;
+            }
+
+            if (taskDescription.trim() === '') {
+                alert('Please enter a task description.');
+                return false;
+            }
+
+            if (taskDeadline === '') {
+                alert('Please select a task deadline.');
+                return false;
+            }
+
+            if (new Date(taskDeadline) > new Date(projectDeadline)) {
+                alert('Task deadline cannot be later than the project deadline.');
+                return false;
+            }
+
+            return true;
+        }
+
+        document.getElementById('projectDeadline').addEventListener('change', function() {
+            const projectDeadline = this.value;
+            document.getElementById('taskDeadline').setAttribute('max', projectDeadline);
+        });
+
+
+    
+    const createProjectForm = document.getElementById('createProjectForm');
+    createProjectForm.addEventListener('submit', (event) => {
+        const projectNameInput = document.getElementById('projectName');
+        const projectName = projectNameInput.value;
+
+        // Check if the project name already exists in the projects array
+        const isDuplicate = projects.some(project => project.projectName === projectName);
+
+        if (isDuplicate) {
+            alert('Project name already exists. Please choose a different name.');
+            event.preventDefault(); // Prevent form submission
+        } else {
+            // Ask for confirmation before submitting the form
+            if (!confirm('Are you sure you want to create this project?')) {
+                event.preventDefault(); // Prevent form submission if not confirmed
+            }
+        }
+        
+    });
 
     $( "#permitSide" ).on( "click", function() {
         $( "#permitSide" ).toggleClass("active", true);
@@ -290,6 +394,8 @@ $project_employees_json = json_encode($project_employees);
         $( "#creditSide" ).toggleClass("active", false);
         $( "#permitSide" ).toggleClass("active", false);
     } );
+
+    
 
 
     createProjectBtn.addEventListener('click', () => {
@@ -333,23 +439,22 @@ $project_employees_json = json_encode($project_employees);
     const projects = <?php echo $projects_json; ?>;
     const projectEmployees = <?php echo $project_employees_json; ?>;
 
-    // Create project cards
-    projects.forEach(project => {
-        const projectCard = document.createElement('div');
-        projectCard.classList.add('project-card');
-        projectCard.innerHTML = `
-            <button style="background-color:green;color: white;">${project.status}</button>
-            <h2>Project Name: ${project.projectName}</h2>
-            <p>Start Date: ${project.startDate}</p>
-            <p>Deadline Date: ${project.Deadline}</p>
-            <p>Progress: ${project.progressBar}%</p>
-            <p>Manager: ${project.man}</p>
-            <button class="add-employee-btn" data-project-id="${project.idProject}">Add Employee</button>
-            <button class="add-task-btn" data-project-id="${project.idProject}">Add Task</button>
-            <button class="view-details-btn" data-project-id="${project.idProject}">View Details</button>
-        `;
-        mainContent.appendChild(projectCard);
-    });
+   // Create project cards
+projects.forEach(project => {
+    const projectCard = document.createElement('div');
+    projectCard.classList.add('project-card');
+    projectCard.innerHTML = `
+        <button style="background-color:green;color: white;">${project.status}</button>
+        <h2>Project Name: ${project.projectName}</h2>
+        <p>Start Date: ${project.startDate}</p>
+        <p>Deadline Date: ${project.Deadline}</p>
+        <p>Progress: ${project.progressBar}%</p>
+        <p>Manager: ${project.man}</p>
+        <button class="add-employee-btn" data-project-id="${project.idProject}">Add Employee</button>
+        <button class="add-task-btn" data-project-id="${project.idProject}">Add Task</button>
+    `;
+    mainContent.appendChild(projectCard);
+});
 
     mainContent.addEventListener('click', (event) => {
         if (event.target.classList.contains('add-employee-btn')) {

@@ -232,10 +232,14 @@ if (isset($_SESSION['name']) && $_SESSION['role'] == 'manager') {
         <aside class="sidebar">
             <!-- Sidebar content -->
             <ul>
-                <a style="text-decoration: none; color: inherit;" href="createProject_page.php"><li id="permitSide">My Projects</li></a>
-                <a style="text-decoration: none; color: inherit;" href="createPermitReq.php"><li id="permitSide">Permit Request</li></a>
-                <a style="text-decoration: none; color: inherit;" href="progressBar.php"><li id="customSide">Custom Project Progress</li></a>
-                <a style="text-decoration: none; color: inherit;" href="#"><li id="creditSide" class="active">Credit score & awards</li></a>
+                <?php if (isset($_SESSION['idManager'])) { ?>
+                    <a style="text-decoration: none; color: inherit;" href="createProject_page.php"><li id="permitSide" >My Projects</li></a>
+                    <a style="text-decoration: none; color: inherit;" href="progressBar.php"><li id="customSide">Custom Project Progress</li></a>
+                    <a style="text-decoration: none; color: inherit;" href="creditScore.php"><li id="creditSide" class="active">Credit score & awards</li></a>
+                <?php } else { ?>
+                    <a style="text-decoration: none; color: inherit;" href="createProject_page.php"><li id="permitSide" >My Projects</li></a>
+                    <a style="text-decoration: none; color: inherit;" href="#"><li id="permitSide" class="active">Permit Request</li></a>           
+                <?php }?>
             </ul>
         </aside>
         <main class="main-content">
