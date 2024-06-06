@@ -1,5 +1,15 @@
-<?php 
+<?php
+// header('Content-Type: application/json');
 include("db_connect.php");
+include("progress_class.php");
+
+if (isset($_POST['task'])) {
+    $task = new Task(null, $_POST['task'], $_POST['description'], $_POST['deadline'], $_POST['percentage'], $_POST['projectId']);
+    $response = $task->addTask($mysqli);
+
+    echo json_encode($response);
+    exit; // Don't output anything else
+}
 
 session_start();
 $dept_name = $_SESSION['dept_name'];
@@ -14,7 +24,7 @@ $result = $stmt->get_result();
 if ($result->num_rows == 1) {
   $row = $result->fetch_assoc();
   $_SESSION['manager_name'] = $row['managerName'];
-}   
+}
 
 // Fetch project names and progress values from the database
 $query = "SELECT idProject, projectName, progressBar, startDate, Deadline, man FROM project";
@@ -33,10 +43,7 @@ mysqli_free_result($result);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Classroom UI</title>
-    <!-- <link rel="stylesheet" href="progressBar.css"> -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- <link rel="stylesheet" href="styles.css"> -->
-    <!-- <script src="script2.js"></script> -->
 </head>
 <body>
     <header>
@@ -53,57 +60,46 @@ mysqli_free_result($result);
                     <a style="text-decoration: none; color: inherit;" href="creditScore.php"><li id="creditSide">Credit score & awards</li></a>
                 <?php } else { ?>
                     <a style="text-decoration: none; color: inherit;" href="createProject_page.php"><li id="permitSide" >My Projects</li></a>
-                    <a style="text-decoration: none; color: inherit;" href="#"><li id="permitSide" class="active">Permit Request</li></a>           
+                    <a style="text-decoration: none; color: inherit;" href="#"><li id="permitSide" class="active">Permit Request</li></a>
                 <?php }?>
             </ul>
         </aside>
         <main class="main-content" id="main-content">
-            <div class="project-selection">
+            <div class="progress-bar-container">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+
+            <form id="addTaskForm" class="task-form">
+                <label for="task">Task Name:</label>
+                <input type="text" id="task" name="task" placeholder="Task Name" required><br>
+                <label for="description">Task Description:</label>
+                <input type="text" id="description" name="description" placeholder="Task Description" required><br>
+                <label for="deadline">Deadline:</label>
+                <input type="date" id="deadline" name="deadline" required><br>
+                <label for="percentage">Percentage:</label>
+                <input type="number" id="percentage" name="percentage" placeholder="Percentage" required><br>
                 <label for="project-select">Select Project:</label>
-                <select id="project-select" onchange="switchProject()">
-                    <option value="">--Select Project--</option>
+                <select id="project-select" name="projectId" onchange="switchProject()">
+                    <option>--Select Project--</option>
                     <?php foreach ($projects as $project): ?>
                         <option value="<?php echo htmlspecialchars($project['idProject']); ?>">
                             <?php echo htmlspecialchars($project['projectName']); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
-            </div>
-            <div class="progress-bar-container">
-                <div id="progress-bar" class="progress-bar"></div>
-            </div>
-
-                        <form id="addTaskForm" class="task-form">
-                <label for="task">Task Name:</label>
-                <input type="text" id="task" placeholder="Task Name" required><br>
-                <label for="description">Task Description:</label>
-                <input type="text" id="description" placeholder="Task Description" required><br>
-                <label for="deadline">Deadline:</label>
-                <input type="date" id="deadline" required><br>
-                <label for="percentage">Percentage:</label>
-                <input type="number" id="percentage" placeholder="Percentage" required><br>
-                <select id="project-select" required>
-                    <!-- Populate this select element with project options dynamically -->
-                </select><br>
                 <button type="button" onclick="addTask()">Add Task</button>
             </form>
 
-                        <!-- Project Cards Container -->
             <div id="project-cards-container" class="project-cards-container"></div>
-
-<!-- Project Details Container -->
-<div id="project-details-container" class="project-details-container"></div>
-
+            <div id="project-details-container" class="project-details-container"></div>
             <div id="task-container"></div>
             <script src="script.js"></script>
         </main>
     </div>
-
 </body>
 </html>
 
 <style>
-/* Add your styles here */
 /* Add your styles here */
 body {
     font-family: Arial, sans-serif;
@@ -114,18 +110,6 @@ body {
     height: 100vh;
     background-color: #f5f5f5;
 }
-/* Other styles remain unchanged */
-/* .task-form {
-    text-align: left;
-} */
-
-/* .task-form label {
-    display: block;
-    margin: 10px 0 5px;
-} */
-
-
-
 header {
     display: flex;
     justify-content: space-between;
@@ -137,19 +121,6 @@ header {
 }
 .header-left h1 {
     margin: 0;
-}
-.header-right {
-    display: flex;
-    align-items: center;
-}
-.header-right button {
-    padding: 5px 10px;
-    background-color: white;
-    color: #4285F4;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-left: 10px;
 }
 .container {
     display: flex;
@@ -185,7 +156,6 @@ header {
     padding: 20px;
     overflow-y: auto;
 }
-
 .progress-bar-container {
     width: 100%;
     background-color: #f3f3f3;
@@ -194,13 +164,14 @@ header {
     margin-top: 10px;
     height: 20px;
     position: relative;
-}.progress-bar {
-            width: 0;
-            height: 20px;
-            background-color: green;
-            text-align: center;
-            color: white;
-        }
+}
+.progress-bar {
+    width: 0;
+    height: 20px;
+    background-color: green;
+    text-align: center;
+    color: white;
+}
 .task-form {
     background-color: white;
     padding: 20px;
@@ -246,12 +217,10 @@ header {
     max-width: 600px;
     margin-bottom: 20px;
 }
-/* CSS styles for the project cards and details */
 .project-details-container {
-    display: none; /* Initially hidden */
+    display: none;
     margin-top: 20px;
 }
-
 .project-details-card {
     background-color: #ffffff;
     padding: 20px;
@@ -264,35 +233,27 @@ header {
     border-radius: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
 .project-card h2 {
     margin-top: 0;
 }
-
 .project-card p {
     margin-bottom: 10px;
 }
-
 .project-card ul {
     padding-left: 20px;
 }
-
 .project-card ul li {
     margin-bottom: 5px;
 }
-
-
 </style>
 
-
 <script>
-    function addTask() {
+function addTask() {
     var task = document.getElementById("task").value;
     var description = document.getElementById("description").value;
     var deadline = document.getElementById("deadline").value;
     var percentage = document.getElementById("percentage").value;
-    var projectSelect = document.getElementById("project-select");
-    var projectId = projectSelect.value;
+    var projectId = document.getElementById("project-select").value;
 
     if (task === "" || description === "" || deadline === "" || percentage === "" || projectId === "") {
         alert("Please fill in all fields and select a project.");
@@ -300,7 +261,7 @@ header {
     }
 
     $.ajax({
-        url: 'progressBar_query.php',
+        url: 'progressBar.php',
         type: 'POST',
         data: {
             task: task,
@@ -310,17 +271,22 @@ header {
             projectId: projectId
         },
         success: function(response) {
-            var result = JSON.parse(response);
-            if (result.success) {
-                updateProgressBar(result.newProgress);
-                alert("Task added successfully!");
-                // Reset the form after successful task addition
-                document.getElementById("addTaskForm").reset();
-            } else {
-                alert("Failed to add task. Please try again.");
+            try {
+                var result = JSON.parse(response);
+                if (result.success) {
+                    updateProgressBar(result.newProgress);
+                    alert("Task added successfully!");
+                    document.getElementById("addTaskForm").reset();
+                } else {
+                    alert("Failed to add task. Please try again.");
+                }
+            } catch (e) {
+                console.error('Invalid JSON response', e);
+                alert("Unexpected server response. Please try again.");
             }
         },
-        error: function() {
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.error('AJAX call failed', textStatus, errorThrown);
             alert("Error adding task. Please try again.");
         }
     });
@@ -331,7 +297,6 @@ function updateProgressBar(newProgress) {
     progressBar.style.width = newProgress + "%";
     progressBar.innerHTML = newProgress + "%";
 
-    // Update the project progress in the projects array
     var projectSelect = document.getElementById("project-select");
     var selectedProjectId = projectSelect.value;
     var selectedProject = projects.find(project => project.idProject == selectedProjectId);
@@ -340,7 +305,6 @@ function updateProgressBar(newProgress) {
     }
 }
 
-        
 var projects = <?php echo json_encode($projects); ?>;
 
 function switchProject() {
@@ -357,45 +321,40 @@ function switchProject() {
         progressBar.innerHTML = "0%";
     }
 }
-       
-    $( "#permitSide" ).on( "click", function() {
-        $( "#permitSide" ).toggleClass("active", true);
-        $( "#projectSide" ).toggleClass("active", false);
-        $( "#creditSide" ).toggleClass("active", false);
-        $( "#customSide" ).toggleClass("active", false);
-    } );
 
-    $( "#projectSide" ).on( "click", function() {
-        $( "#projectSide" ).toggleClass("active", true);
-        $( "#permitSide" ).toggleClass("active", false);
-        $( "#creditSide" ).toggleClass("active", false);
-        $( "#customSide" ).toggleClass("active", false);
-    } );
+$( "#permitSide" ).on( "click", function() {
+    $( "#permitSide" ).toggleClass("active", true);
+    $( "#projectSide" ).toggleClass("active", false);
+    $( "#creditSide" ).toggleClass("active", false);
+    $( "#customSide" ).toggleClass("active", false);
+} );
 
-    $( "#creditSide" ).on( "click", function() {
-        $( "#creditSide" ).toggleClass("active", true);
-        $( "#projectSide" ).toggleClass("active", false);
-        $( "#permitSide" ).toggleClass("active", false);
-        $( "#customSide" ).toggleClass("active", false);
-    } );
+$( "#projectSide" ).on( "click", function() {
+    $( "#projectSide" ).toggleClass("active", true);
+    $( "#permitSide" ).toggleClass("active", false);
+    $( "#creditSide" ).toggleClass("active", false);
+    $( "#customSide" ).toggleClass("active", false);
+} );
 
-    $( "#customSide" ).on( "click", function() {
-        $( "#customSide" ).toggleClass("active", true);
-        $( "#projectSide" ).toggleClass("active", false);
-        $( "#creditSide" ).toggleClass("active", false);
-        $( "#permitSide" ).toggleClass("active", false);
-    } );
+$( "#creditSide" ).on( "click", function() {
+    $( "#creditSide" ).toggleClass("active", true);
+    $( "#projectSide" ).toggleClass("active", false);
+    $( "#permitSide" ).toggleClass("active", false);
+    $( "#customSide" ).toggleClass("active", false);
+} );
 
-    var projects = <?php echo json_encode($projects); ?>;
+$( "#customSide" ).on( "click", function() {
+    $( "#customSide" ).toggleClass("active", true);
+    $( "#projectSide" ).toggleClass("active", false);
+    $( "#creditSide" ).toggleClass("active", false);
+    $( "#permitSide" ).toggleClass("active", false);
+} );
 
-
-
-    document.addEventListener('DOMContentLoaded', () => {
-        const mainContent = document.querySelector('.main-content');
+document.addEventListener('DOMContentLoaded', () => {
+    const mainContent = document.querySelector('.main-content');
     const projectSelect = document.getElementById('project-select');
     const projectDetailsContainer = document.getElementById('project-details-container');
 
-    // Function to display project details
     function displayProjectDetails(project) {
         projectDetailsContainer.innerHTML = `
             <div class="project-details-card">
@@ -406,10 +365,9 @@ function switchProject() {
                 <p><strong>Manager:</strong> ${project.man}</p>
             </div>
         `;
-        projectDetailsContainer.style.display = 'block'; // Show the project details container
+        projectDetailsContainer.style.display = 'block';
     }
 
-    // Event listener for project selection
     projectSelect.addEventListener('change', () => {
         const selectedProjectId = projectSelect.value;
         const selectedProject = projects.find(project => project.idProject == selectedProjectId);
@@ -419,13 +377,10 @@ function switchProject() {
         }
     });
 
-    // Initial display when the page loads
     const initialProjectId = projectSelect.value;
     const initialProject = projects.find(project => project.idProject == initialProjectId);
     if (initialProject) {
         displayProjectDetails(initialProject);
     }
-    
 });
-
-    </script>
+</script>
