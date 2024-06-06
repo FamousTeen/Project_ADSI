@@ -14,41 +14,17 @@ $result = $stmt->get_result();
 if ($result->num_rows == 1) {
   $row = $result->fetch_assoc();
   $_SESSION['manager_name'] = $row['managerName'];
-}
+}   
 
-// Fetch permit details
-$idEmp = $_SESSION['idEmp'];
-$sql = "SELECT * FROM permit WHERE emp = ?";
-$stmt = $mysqli->prepare($sql);
-$stmt->bind_param("i", $idEmp);
-$stmt->execute();
-$result = $stmt->get_result();
+// Fetch project names and progress values from the database
+$query = "SELECT idProject, projectName, progressBar, startDate, Deadline, man FROM project";
+$result = mysqli_query($mysqli, $query);
 
-$data = array();
-
-while ($row = $result->fetch_assoc()) {
-    $data[] = array(
-        'title' => $row['permitTitle'],
-        'desc' => $row['description'],
-        'date' => $row['permitDate'],
-        'status' => $row['status']
-    );
-}
-
-// Fetch project details
-$sql = "SELECT idProject, projectName FROM project";
-$result = $mysqli->query($sql);
-$row2 = mysqli_fetch_assoc($result);
-$idProject2 = $row2['idProject'];
 $projects = array();
-while ($row = $result->fetch_assoc()) {
+while ($row = mysqli_fetch_assoc($result)) {
     $projects[] = $row;
 }
-
-$sql = "SELECT * FROM task WHERE idProject_task = $idProject2";
-$result2 = $mysqli->query($sql);
-$projects2 = array();
-
+mysqli_free_result($result);
 ?>
 
 <!DOCTYPE html>
@@ -57,100 +33,79 @@ $projects2 = array();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Classroom UI</title>
-    <link rel="stylesheet" href="progressBar.css">
-    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-
+    <!-- <link rel="stylesheet" href="progressBar.css"> -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- <link rel="stylesheet" href="styles.css"> -->
+    <!-- <script src="script2.js"></script> -->
 </head>
 <body>
     <header>
         <div class="header-left">
             <h1>DivRoom</h1>
         </div>
-        <div class="header-right">
-            <button id="createProjectBtn">Request New Permit</button>
-        </div>
     </header>
     <div class="container">
         <aside class="sidebar">
             <ul>
-                <a style="text-decoration: none; color: inherit;" href="createProject_page"><li id="permitSide" >My Projects</li></a>
-                <a style="text-decoration: none; color: inherit;" href="createPermitReq.php"><li id="permitSide" >Permit Request</li></a>
-                <a style="text-decoration: none; color: inherit;" href="#"><li id="customSide" class="active">Custom Project Progress</li></a>
-                <a style="text-decoration: none; color: inherit;" href="creditScore.php"><li id="creditSide">Credit score & awards</li></a>
+                <?php if (isset($_SESSION['idManager'])) { ?>
+                    <a style="text-decoration: none; color: inherit;" href="createProject_page.php"><li id="permitSide" >My Projects</li></a>
+                    <a style="text-decoration: none; color: inherit;" href="progressBar.php"><li id="customSide" class="active">Custom Project Progress</li></a>
+                    <a style="text-decoration: none; color: inherit;" href="creditScore.php"><li id="creditSide">Credit score & awards</li></a>
+                <?php } else { ?>
+                    <a style="text-decoration: none; color: inherit;" href="createProject_page.php"><li id="permitSide" >My Projects</li></a>
+                    <a style="text-decoration: none; color: inherit;" href="#"><li id="permitSide" class="active">Permit Request</li></a>           
+                <?php }?>
             </ul>
         </aside>
         <main class="main-content" id="main-content">
+            <div class="project-selection">
+                <label for="project-select">Select Project:</label>
+                <select id="project-select" onchange="switchProject()">
+                    <option value="">--Select Project--</option>
+                    <?php foreach ($projects as $project): ?>
+                        <option value="<?php echo htmlspecialchars($project['idProject']); ?>">
+                            <?php echo htmlspecialchars($project['projectName']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="progress-bar-container">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
 
-        <div class="progress-bar-container">
-            <div class="progress-bar background" id="background-progress"></div>
-            <div class="progress-bar approved" id="approved-progress" style="width: 0%;"></div>
-            <div class="progress-bar not-approved" id="not-approved-progress" style="width: 0%;"></div>
-        </div>
-
-        <div class="project-selection">
-            <label for="project-select">Select Project:</label>
-            <select id="project-select" onchange="switchProject()">
-                <option value="">--Select Project--</option>
-                <?php 
-                include("db_connect.php");
-                $result = mysqli_query($mysqli, "SELECT idProject, projectName FROM project");
-                while ($row = mysqli_fetch_assoc($result)): ?>
-                    <option value="<?php echo $row['idProject']; ?>"><?php echo $row['projectName']; ?></option>
-                <?php endwhile; ?>
-            </select>
-        </div>
-
-        <div class="progress-container">
-            <div class="progress-bar" id="progress-bar"></div>
-        </div>
-
-        <div class="task-form" id="task-form">
-            <h2>Add Task</h2>
-            <form id="addTaskForm" method="POST" action="addTask.php">
-                <label for="task">Task:</label>
-                <input type="text" id="task" name="taskName" required>
-                
-
-                <label for="description">Description:</label>
-                <textarea id="description" name="taskDescription"></textarea>
-
-                <label for="taskDeadline">Deadline:</label>
-                <input type="date" id="taskDeadline" name="taskDeadline" required>
-
-                <label for="progressTask">Progress:</label>
-                <input type="number" id="progressTask" name="progressTask" min="0" max="100" required>
-
-                <input type="hidden" id="idProject_task" name="idProject_task" value="">
-
-                <button type="submit" name="addtask">Add Task</button>
+                        <form id="addTaskForm" class="task-form">
+                <label for="task">Task Name:</label>
+                <input type="text" id="task" placeholder="Task Name" required><br>
+                <label for="description">Task Description:</label>
+                <input type="text" id="description" placeholder="Task Description" required><br>
+                <label for="deadline">Deadline:</label>
+                <input type="date" id="deadline" required><br>
+                <label for="percentage">Percentage:</label>
+                <input type="number" id="percentage" placeholder="Percentage" required><br>
+                <select id="project-select" required>
+                    <!-- Populate this select element with project options dynamically -->
+                </select><br>
+                <button type="button" onclick="addTask()">Add Task</button>
             </form>
-        </div>
 
+                        <!-- Project Cards Container -->
+            <div id="project-cards-container" class="project-cards-container"></div>
+
+<!-- Project Details Container -->
+<div id="project-details-container" class="project-details-container"></div>
+
+            <div id="task-container"></div>
+            <script src="script.js"></script>
         </main>
     </div>
-</body>
-</html>
-
-
 
 </body>
 </html>
 
-    <div id="task-container"></div>
-    <script src="progressBarScript.js"></script>
-    <!-- Create Project Modal -->
-    
-
-    
-</body>
-</html>
-
-
-
-
-<!-- Path: styles.css -->
 <style>
-    body {
+/* Add your styles here */
+/* Add your styles here */
+body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
@@ -159,6 +114,17 @@ $projects2 = array();
     height: 100vh;
     background-color: #f5f5f5;
 }
+/* Other styles remain unchanged */
+/* .task-form {
+    text-align: left;
+} */
+
+/* .task-form label {
+    display: block;
+    margin: 10px 0 5px;
+} */
+
+
 
 header {
     display: flex;
@@ -169,23 +135,13 @@ header {
     color: white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
 .header-left h1 {
     margin: 0;
 }
-
 .header-right {
     display: flex;
     align-items: center;
 }
-
-.header-right input {
-    padding: 5px;
-    margin-right: 10px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-}
-
 .header-right button {
     padding: 5px 10px;
     background-color: white;
@@ -195,12 +151,10 @@ header {
     cursor: pointer;
     margin-left: 10px;
 }
-
 .container {
     display: flex;
     flex: 1;
 }
-
 .sidebar {
     width: 250px;
     background-color: #3c4043;
@@ -210,14 +164,12 @@ header {
     display: flex;
     flex-direction: column;
 }
-
 .sidebar ul {
     list-style: none;
     padding: 0;
     margin: 0;
     width: 100%;
 }
-
 .sidebar ul li {
     padding: 15px;
     cursor: pointer;
@@ -225,221 +177,187 @@ header {
     margin-bottom: 10px;
     transition: background-color 0.3s ease;
 }
-
 .sidebar ul li:hover, .sidebar ul li.active {
     background-color: #5f6368;
 }
-
 .main-content {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
 }
 
-/* Card styles */
-/* Card styles */
-.class-card {
-    background-color: #fff;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border-left: 5px solid #4285F4; /* Add a colored border for emphasis */
-}
-
-.class-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-}
-
-.class-card .project-name {
-    background-color: #0f9d58;
-    color: #4285F4; /* Project name color */
-    font-size: 24px; /* Adjust font size as needed */
-}
-
-.class-card .label {
-    font-weight: bold;
-    color: #666; /* Label color */
-}
-
-.class-card .project-deadline {
-    color: #ea4335; /* Deadline color */
-}
-
-.class-card .project-progress {
-    color: #0f9d58; /* Progress color */
-}
-
-.class-card .file-types {
-    color: #fbbc05; /* File types color */
-}
-
-.class-card button {
-    padding: 5px 10px;
-    background-color: #4285F4;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.class-card button:hover {
-    background-color: #357ae8;
-}
-
-
-/* Modal styles */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
+.progress-bar-container {
     width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.4);
-}
-
-.modal-content {
+    background-color: #f3f3f3;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-top: 10px;
+    height: 20px;
+    position: relative;
+}.progress-bar {
+            width: 0;
+            height: 20px;
+            background-color: green;
+            text-align: center;
+            color: white;
+        }
+.task-form {
     background-color: white;
-    margin: 15% auto;
     padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 600px;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 400px;
+    margin-bottom: 20px;
 }
-
-.close-btn {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
+.task-form h2 {
+    margin-top: 0;
 }
-
-.close-btn:hover,
-.close-btn:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-form label {
+.task-form label {
     display: block;
     margin: 10px 0 5px;
 }
-
-form input,
-form select,
-form button {
+.task-form input,
+.task-form textarea {
     width: 100%;
     padding: 10px;
-    margin: 5px 0 10px;
+    margin-bottom: 10px;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 5px;
 }
-
-form button {
-    background-color: #4285F4;
-    color: white;
+.task-form button {
+    padding: 10px 20px;
+    font-size: 16px;
     cursor: pointer;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
 }
-
-form button:hover {
-    background-color: #357ae8;
+.task-form button:hover {
+    background-color: #45a049;
 }
-
-#newMemberForm.hidden {
-    display: none;
-}
-
-#memberList {
-    width: 100%;
-    border-collapse: collapse;
+.task {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 600px;
     margin-bottom: 20px;
 }
-
-#memberList th,
-#memberList td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
+/* CSS styles for the project cards and details */
+.project-details-container {
+    display: none; /* Initially hidden */
+    margin-top: 20px;
 }
 
-#memberList th {
-    background-color: #f2f2f2;
+.project-details-card {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.project-card {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-#memberList {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
+.project-card h2 {
+    margin-top: 0;
 }
 
-#tasklist th,
-#tasklist td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
+.project-card p {
+    margin-bottom: 10px;
 }
 
-#tasklist th {
-    background-color: #f2f2f2;
-}
-#newTaskForm.hidden {
-    display: none;
+.project-card ul {
+    padding-left: 20px;
 }
 
-
-/* Add this style for select menu */
-form select {
-    width: calc(100% - 22px); /* Adjust width to fit content */
-    padding-right: 22px; /* Add space for dropdown arrow */
-    background-image: url('arrow-down.svg'); /* Path to dropdown arrow icon */
-    background-repeat: no-repeat;
-    background-position: right center;
-    appearance: none; /* Remove default appearance */
-    -webkit-appearance: none; /* Safari and Chrome */
-    -moz-appearance: none; /* Firefox */
-    border-radius: 4px;
+.project-card ul li {
+    margin-bottom: 5px;
 }
 
 
 </style>
 
+
 <script>
-         <?php 
-            $permitIndex = 0;
-            foreach ($result2 as $row) {
-                $projects2[$permitIndex] = array(
-                'taskName' => $row['taskName'],
-                'taskDescription' => $row['taskDescription'],
-                'taskDeadline' => $row['taskDeadline'],
-                'progressTask' => $row['progressTask']
-                );
-            ?> 
-            var mainContent = document.getElementById('main-content');
-            var permitCard = document.createElement('div');
-            permitCard.classList.add('class-card');
-            permitCard.innerHTML += 
-                `<p><strong>Task Name:</strong><?php echo $projects2[$permitIndex]['taskName'] ?></p>
-                        <p><strong>Task Description:</strong><?php echo $projects2[$permitIndex]['taskDescription']?></p>
-                        <p><strong>Deadline:</strong> <?php echo $projects2[$permitIndex]['taskDeadline']?></p>
-                        <p><strong>Progress:</strong> <?php echo $projects2[$permitIndex]['progressTask']?>%</p>
-            `;
-            mainContent.appendChild(permitCard);
-        <?php  $permitIndex +=1; };  ?>
+    function addTask() {
+    var task = document.getElementById("task").value;
+    var description = document.getElementById("description").value;
+    var deadline = document.getElementById("deadline").value;
+    var percentage = document.getElementById("percentage").value;
+    var projectSelect = document.getElementById("project-select");
+    var projectId = projectSelect.value;
 
+    if (task === "" || description === "" || deadline === "" || percentage === "" || projectId === "") {
+        alert("Please fill in all fields and select a project.");
+        return;
+    }
 
-        function switchProject() {
-            var selectedProjectId = document.getElementById('project-select').value;
-            document.getElementById('idProject_task').value = selectedProjectId;
+    $.ajax({
+        url: 'progressBar_query.php',
+        type: 'POST',
+        data: {
+            task: task,
+            description: description,
+            deadline: deadline,
+            percentage: percentage,
+            projectId: projectId
+        },
+        success: function(response) {
+            var result = JSON.parse(response);
+            if (result.success) {
+                updateProgressBar(result.newProgress);
+                alert("Task added successfully!");
+                // Reset the form after successful task addition
+                document.getElementById("addTaskForm").reset();
+            } else {
+                alert("Failed to add task. Please try again.");
+            }
+        },
+        error: function() {
+            alert("Error adding task. Please try again.");
         }
+    });
+}
+
+function updateProgressBar(newProgress) {
+    var progressBar = document.getElementById("progress-bar");
+    progressBar.style.width = newProgress + "%";
+    progressBar.innerHTML = newProgress + "%";
+
+    // Update the project progress in the projects array
+    var projectSelect = document.getElementById("project-select");
+    var selectedProjectId = projectSelect.value;
+    var selectedProject = projects.find(project => project.idProject == selectedProjectId);
+    if (selectedProject) {
+        selectedProject.progressBar = newProgress;
+    }
+}
+
+        
+var projects = <?php echo json_encode($projects); ?>;
+
+function switchProject() {
+    var projectSelect = document.getElementById("project-select");
+    var selectedProjectId = projectSelect.value;
+    var selectedProject = projects.find(project => project.idProject == selectedProjectId);
+
+    var progressBar = document.getElementById("progress-bar");
+    if (selectedProject) {
+        progressBar.style.width = selectedProject.progressBar + "%";
+        progressBar.innerHTML = selectedProject.progressBar + "%";
+    } else {
+        progressBar.style.width = "0%";
+        progressBar.innerHTML = "0%";
+    }
+}
+       
     $( "#permitSide" ).on( "click", function() {
         $( "#permitSide" ).toggleClass("active", true);
         $( "#projectSide" ).toggleClass("active", false);
@@ -468,54 +386,46 @@ form select {
         $( "#permitSide" ).toggleClass("active", false);
     } );
 
+    var projects = <?php echo json_encode($projects); ?>;
+
+
+
     document.addEventListener('DOMContentLoaded', () => {
-    const createProjectBtn = document.getElementById('createProjectBtn');
-    const modal = document.getElementById('createProjectModal');
-    const closeBtn = document.querySelector('.close-btn');
-    const createProjectForm = document.getElementById('createProjectForm');
-    const mainContent = document.querySelector('.main-content');
+        const mainContent = document.querySelector('.main-content');
+    const projectSelect = document.getElementById('project-select');
+    const projectDetailsContainer = document.getElementById('project-details-container');
 
-
-    createProjectBtn.onclick = () => {
-        modal.style.display = 'block';
-    }
-
-    closeBtn.onclick = () => {
-        modal.style.display = 'none';
-        newTaskForm.classList.add('hidden'); // Close the add task form when closing the modal
-    }
-
-    window.onclick = (event) => {
-        if (event.target == modal) {
-            modal.style.display = 'none';
-            newTaskForm.classList.add('hidden'); // Close the add task form when clicking outside the modal
-        }
-    }
-
-    const permitDate = document.getElementById('permitDate').value;
-    
-    const currentDate = new Date();
-    const selectedDate = new Date(permitDate);
-
-    if (permitTitle && permitDate) {
-        if (selectedDate < currentDate) {
-            alert('Please select a deadline after the current date.');
-            return; // Exit the function if the deadline is before the current date
-        }
-
-        const permitCard = document.createElement('div');
-        permitCard.classList.add('class-card');
-        permitCard.innerHTML = `
-            <h2>${permitTitle}</h2>
-            <p>Description: ${permitDesc}</p>
-            <p>Deadline: ${permitDate}</p>
-            <button>See Permit Detail</button>
+    // Function to display project details
+    function displayProjectDetails(project) {
+        projectDetailsContainer.innerHTML = `
+            <div class="project-details-card">
+                <h2>${project.projectName}</h2>
+                <p><strong>Start Date:</strong> ${project.startDate}</p>
+                <p><strong>Deadline:</strong> ${project.Deadline}</p>
+                <p><strong>Progress:</strong> ${project.progressBar}%</p>
+                <p><strong>Manager:</strong> ${project.man}</p>
+            </div>
         `;
-        mainContent.appendChild(permitCard);
-    } else {
-        alert('Please fill in all required fields');
+        projectDetailsContainer.style.display = 'block'; // Show the project details container
     }
 
+    // Event listener for project selection
+    projectSelect.addEventListener('change', () => {
+        const selectedProjectId = projectSelect.value;
+        const selectedProject = projects.find(project => project.idProject == selectedProjectId);
+
+        if (selectedProject) {
+            displayProjectDetails(selectedProject);
+        }
+    });
+
+    // Initial display when the page loads
+    const initialProjectId = projectSelect.value;
+    const initialProject = projects.find(project => project.idProject == initialProjectId);
+    if (initialProject) {
+        displayProjectDetails(initialProject);
+    }
+    
 });
 
     </script>
